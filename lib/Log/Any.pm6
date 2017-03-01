@@ -5,13 +5,12 @@ use Log::Any::Pipeline;
 class Log::Any {
 	my $instance;
 
-	has %!pipelines;
+	has %!pipelines = { '_default' => Log::Any::Pipeline.new };
 
-	method new { self.instance }
-
-	submethod instance {
-		# TODO: add default pipeline
-		$instance = Log::Any.bless unless $instance;
+	method new {
+		unless $instance {
+			$instance = Log::Any.bless;
+		}
 		return $instance;
 	}
 
@@ -25,14 +24,19 @@ class Log::Any {
 	}
 
 	method add( Log::Any::Adapter $a ) {
-		my $p = self.get-pipeline( '_default' );
-		$p.add( $a );
+		%!pipelines{'_default'}.add( $a );
 	}
 
 	method log( :$msg!, :$severity!, :$category, :$facility, :$pipeline = '_default' ) {
-		# Search the pipeline
-		my $pipeline-instance = self.get-pipeline( $pipeline );
-		$pipeline-instance.dispatch( :$msg, :$severity, :$category );
+		# Depending if we are calling the method from an instancied Log::Any, or not
+		if self.DEFINITE {
+			# Use the specified pipeline, or the default one
+			my $pipeline-instance = %!pipelines{ $pipeline } // %!pipelines{'_default'};
+			$pipeline-instance.dispatch( :$msg, :$severity, :$category );
+		} else {
+			my $l = Log::Any.new;
+			$l.log( :$msg, :$severity, :$category, :$facility, :$pipeline );
+		}
 	}
 
 	method error( $msg, :$category ) {
