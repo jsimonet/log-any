@@ -119,6 +119,12 @@ Sometimes, applications or libraries are already available, and prints their log
 
 Catches all unhandled exceptions to log them.
 
+## Stacktrace
+
+Dump a stacktrace with the log. This could be usefull to find a problem.
+	Is it necessary?
+	Is it possible to do in an Adapter or some Proxy ?
+
 # APPENDICE
 
 use Log::Any ( :async );
