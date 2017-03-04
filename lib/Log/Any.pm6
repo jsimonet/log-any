@@ -24,19 +24,26 @@ class Log::Any {
 	}
 
 	method add( Log::Any::Adapter $a ) {
+		unless self.DEFINITE {
+			self.new.add( $a );
+			return;
+		}
+
 		%!pipelines{'_default'}.add( $a );
 	}
 
 	method log( :$msg!, :$severity!, :$category, :$facility, :$pipeline = '_default' ) {
 		# Depending if we are calling the method from an instancied Log::Any, or not
-		if self.DEFINITE {
-			# Use the specified pipeline, or the default one
-			my $pipeline-instance = %!pipelines{ $pipeline } // %!pipelines{'_default'};
-			$pipeline-instance.dispatch( :$msg, :$severity, :$category );
-		} else {
-			my $l = Log::Any.new;
-			$l.log( :$msg, :$severity, :$category, :$facility, :$pipeline );
+		unless self.DEFINITE {
+			return Log::Any.new.log( :$msg, :$severity, :$category, :$facility, :$pipeline );
 		}
+
+		}
+
+		# Use the specified pipeline, or the default one
+		my $pipeline-instance = %!pipelines{ $pipeline } // %!pipelines{'_default'};
+		$pipeline-instance.dispatch( :$msg, :$severity, :$category );
+
 	}
 
 	method error( $msg, :$category ) {
