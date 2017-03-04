@@ -14,15 +14,6 @@ class Log::Any {
 		return $instance;
 	}
 
-	method get-pipeline( Str:D $p-name ) {
-		my $pipeline-instance = %!pipelines{$p-name};
-
-		# Get the "default pipeline" if wanted pipeline does not exists
-		$pipeline-instance //= %!pipelines{'_default'};
-
-		return $pipeline-instance;
-	}
-
 	method add( Log::Any::Adapter $a ) {
 		unless self.DEFINITE {
 			self.new.add( $a );
@@ -32,12 +23,27 @@ class Log::Any {
 		%!pipelines{'_default'}.add( $a );
 	}
 
-	method log( :$msg!, :$severity!, :$category, :$facility, :$pipeline = '_default' ) {
+	method log( :$msg!, :$severity!, :$category is copy, :$facility, :$pipeline = '_default' ) {
+
 		# Depending if we are calling the method from an instancied Log::Any, or not
 		unless self.DEFINITE {
 			return Log::Any.new.log( :$msg, :$severity, :$category, :$facility, :$pipeline );
 		}
 
+		# Search the package name of caller if $category is not set
+		# Can be null (Any) (no caller package)
+		# TODO : limit to some level?
+		unless $category {
+			# Search the package name of the caller
+			for Backtrace.new -> $b {
+				if $b.code ~~ Routine {
+					if $b.code.package.^name ~~ /^ 'Log::Any' | ^ 'Backtrace' / {
+						next;
+					}
+					$category = $b.code.package.^name;
+					last;
+				}
+			}
 		}
 
 		# Use the specified pipeline, or the default one

@@ -13,10 +13,12 @@ class Log::Any::Pipeline {
 	has @!adapters;
 
 	method add( Log::Any::Adapter $a ) {
+		#note "{now} adding adapter $a.WHAT().^name()";
 		push @!adapters, $a;
 	}
 
 	method dispatch( :$msg!, :$severity!, :$category! ) {
+		#note "{now} dispatching $msg, adapter count : @!adapters.elems()";
 		for @!adapters -> $adapt {
 			# Check if the adapter meets the requirements
 
