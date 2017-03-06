@@ -23,7 +23,7 @@ class Log::Any {
 		%!pipelines{'_default'}.add( $a );
 	}
 
-	method log( :$msg!, :$severity!, :$category is copy, :$facility, :$pipeline = '_default' ) {
+	method log( :$msg!, :$severity!, :$category is copy, :$facility, :$pipeline = '_default' --> Bool ) {
 
 		# Depending if we are calling the method from an instancied Log::Any, or not
 		unless self.DEFINITE {
@@ -49,6 +49,7 @@ class Log::Any {
 		my $pipeline-instance = %!pipelines{ $pipeline } // %!pipelines{'_default'};
 		$pipeline-instance.dispatch( :$msg, :$severity, :$category );
 
+		return True;
 	}
 
 	method error( $msg, :$category ) {
