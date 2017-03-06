@@ -10,26 +10,27 @@ class ToLog {
 	}
 }
 
-my $p = start {
-	sleep 1;
+use Log::Any::Adapter;
+class MultiThreadTest is Log::Any::Adapter {
+	has @.logs;
+
+	method handle( $msg ) {
+		push @!logs, $msg;
+	}
+}
+
+my $mtt = MultiThreadTest.new;
+
+{
+	use Log::Any;
+	Log::Any.add( $mtt );
+}
+
+await start {
 	ToLog.foo();
 }
 
 {
-	use Log::Any;
-	class MultiThreadTest is Log::Any::Adapter {
-		has @.logs;
-
-		method handle( $msg ) {
-			push @!logs, $msg;
-		}
-	}
-
-	my $a = MultiThreadTest.new;
-	Log::Any.add( $a );
-
-	await $p;
-
-	is $a.logs.elems, 1;
-	is $a.logs[0], 'a test from ToLog';
+	is $mtt.logs.elems, 1, 'Count logs ok';
+	is $mtt.logs[0], 'a test from ToLog', 'Message log ok';
 }
