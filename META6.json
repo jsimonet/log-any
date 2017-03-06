@@ -10,7 +10,10 @@
 		"Log::Any::Adapter" : "lib/Log/Any/Adapter.pm6",
 		"Log::Any::Adapter::STDOUT" : "lib/Log/Any/Adapter/STDOUT.pm6"
 	},
-	"depends" : [ ],
+	"depends" : [
+		"Test",
+		"Test::META"
+	],
 	"resources" : [ ],
 	"source-url" : "git://github.com/you/Vortex-TotalPerspective.git"
 }
