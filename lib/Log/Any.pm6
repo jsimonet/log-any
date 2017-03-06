@@ -32,7 +32,6 @@ class Log::Any {
 
 		# Search the package name of caller if $category is not set
 		# Can be null (Any) (no caller package)
-		# TODO : limit to some level?
 		unless $category {
 			# Search the package name of the caller
 			for Backtrace.new -> $b {

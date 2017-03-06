@@ -113,7 +113,7 @@ Log::Any.error( :pipeline<security>, :msg('security error!', ... ) );
 
 ### STDOUT, STDERR
 
-Sometimes, applications or libraries are already available, and prints their logs to STDOUT and/or STDERR. Log::Any could captures theses logs and manage them.
+Sometimes, applications or libraries are already available, and prints their logs to STDOUT and/or STDERR. Log::Any could captures these logs and manage them.
 
 ### EXCEPTIONS
 
@@ -135,3 +135,8 @@ use Log::Any ( :async );
 --log-on-error : keep in cache logs in streams (all, from trace to info)
 	- if an error occurs (how to detect, using a level?), log the stacktrace ;
 	- if nothing special occurs, log what as specified in the filters.
+
+## Load log configuration from configuration files
+
+- with a watcher on the file ?
+	- pause dispatching during the reload ;
