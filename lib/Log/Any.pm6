@@ -14,22 +14,23 @@ class Log::Any {
 		return $instance;
 	}
 
-	method add( Log::Any::Adapter $a ) {
-		unless self.DEFINITE {
-			self.new.add( $a );
-			return;
-		}
+	# Log::Any.add
+	multi method add( Log::Any:U: Log::Any::Adapter $a ) {
+		return self.new.add( $a );
+	}
 
+	# Log::Any.new.add
+	multi method add( Log::Any:D: Log::Any::Adapter $a ) {
 		%!pipelines{'_default'}.add( $a );
 	}
 
-	method log( :$msg!, :$severity!, :$category is copy, :$facility, :$pipeline = '_default' --> Bool ) {
+	proto method log(Log::Any: :$msg!, :$severity!, :$category is copy, :$facility, :$pipeline = '_default' --> Bool ) {*}
 
-		# Depending if we are calling the method from an instancied Log::Any, or not
-		unless self.DEFINITE {
-			return Log::Any.new.log( :$msg, :$severity, :$category, :$facility, :$pipeline );
-		}
+	multi method log(Log::Any:U: :$msg!, :$severity!, :$category is copy, :$facility, :$pipeline = '_default' --> Bool ) {
+		return Log::Any.new.log( :$msg, :$severity, :$category, :$facility, :$pipeline );
+	}
 
+	multi method log(Log::Any:D: :$msg!, :$severity!, :$category is copy, :$facility, :$pipeline = '_default' --> Bool ) {
 		# Search the package name of caller if $category is not set
 		# Can be null (Any) (no caller package)
 		unless $category {
