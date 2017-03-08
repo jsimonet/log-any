@@ -2,7 +2,7 @@ use v6.c;
 
 use Test;
 
-plan 12;
+plan 17;
 
 use Log::Any;
 
@@ -15,9 +15,16 @@ ok Log::Any.debug( 'a debug' ),       'Log::Any.debug()';
 ok Log::Any.trace( 'a trace' ),       'Log::Any.trace()';
 
 my $l = Log::Any.new;
-ok $l.error( 'an error' ),      '$l.error()';
-ok $l.warning( 'a warning' ),   '$l.warning()';
-ok $l.info( 'an information' ), '$l.info()';
-ok $l.notice( 'a notice' ),     '$l.notice()';
-ok $l.debug( 'a debug' ),       '$l.debug()';
-ok $l.trace( 'a trace' ),       '$l.trace()';
+ok $l.emergency( 'an emergency' ), '$l.emergency()';
+ok $l.alert( 'an alert' ),         '$l.alert()';
+ok $l.critical( 'a critic' ),      '$l.critical()';
+ok $l.warning( 'a warning' ),      '$l.warning()';
+ok $l.info( 'an information' ),    '$l.info()';
+ok $l.notice( 'a notice' ),        '$l.notice()';
+ok $l.debug( 'a debug' ),          '$l.debug()';
+ok $l.trace( 'a trace' ),          '$l.trace()';
+
+dies-ok { $l.log( :msg('msg'), :severity('unknownSeverity') ) }, 'unknown severity dies';
+dies-ok { $l.log( :msg('msg'), :severity('') ) }, 'empty severity dies';
+
+ok $l.log( :msg(''), :severity('trace' ) ), 'Empty message allowed';

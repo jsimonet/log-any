@@ -2,8 +2,12 @@ use v6.c;
 
 use Log::Any::Pipeline;
 
+=begin pod
+=head1 Log::Any
+=end pod
 class Log::Any {
 	my $instance;
+	my constant @SEVERITIES = <trace debug info notice warning error critical alert emergency>;
 
 	has %!pipelines = { '_default' => Log::Any::Pipeline.new };
 
@@ -30,7 +34,16 @@ class Log::Any {
 		return Log::Any.new.log( :$msg, :$severity, :$category, :$pipeline );
 	}
 
+=begin pod
+=head2 method log
+=head3 Parameters
+=head3 Exceptions
+Dies if severity is unknown.
+=end pod
 	multi method log(Log::Any:D: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {
+		# Check if the severity is handled
+		die "Unknown severity $severity" unless $severity ~~ @SEVERITIES.any;
+
 		# Search the package name of caller if $category is not set
 		# Can be null (Any) (no caller package)
 		unless $category {
@@ -51,6 +64,19 @@ class Log::Any {
 		$pipeline-instance.dispatch( :$msg, :$severity, :$category );
 
 		return True;
+	}
+
+
+	method emergency( $msg, :$category, :$pipeline --> Bool ) {
+		self.log( :$msg, :severity( 'emergency' ), :$category );
+	}
+
+	method alert( $msg, :$category, :$pipeline --> Bool ) {
+		self.log( :$msg, :severity( 'alert' ), :$category );
+	}
+
+	method critical( $msg, :$category, :$pipeline --> Bool ) {
+		self.log( :$msg, :severity( 'critical' ), :$category );
 	}
 
 	method error( $msg, :$category, :$pipeline --> Bool ) {
