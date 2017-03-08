@@ -24,13 +24,13 @@ class Log::Any {
 		%!pipelines{'_default'}.add( $a );
 	}
 
-	proto method log(Log::Any: :$msg!, :$severity!, :$category is copy, :$facility, :$pipeline = '_default' --> Bool ) {*}
+	proto method log(Log::Any: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {*}
 
-	multi method log(Log::Any:U: :$msg!, :$severity!, :$category is copy, :$facility, :$pipeline = '_default' --> Bool ) {
-		return Log::Any.new.log( :$msg, :$severity, :$category, :$facility, :$pipeline );
+	multi method log(Log::Any:U: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {
+		return Log::Any.new.log( :$msg, :$severity, :$category, :$pipeline );
 	}
 
-	multi method log(Log::Any:D: :$msg!, :$severity!, :$category is copy, :$facility, :$pipeline = '_default' --> Bool ) {
+	multi method log(Log::Any:D: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {
 		# Search the package name of caller if $category is not set
 		# Can be null (Any) (no caller package)
 		unless $category {
@@ -53,27 +53,27 @@ class Log::Any {
 		return True;
 	}
 
-	method error( $msg, :$category ) {
+	method error( $msg, :$category, :$pipeline --> Bool ) {
 		self.log( :$msg, :severity( 'error' ), :$category );
 	}
 
-	method warning( $msg, :$category ) {
+	method warning( $msg, :$category, :$pipeline --> Bool ) {
 		self.log( :$msg, :severity( 'warning' ), :$category );
 	}
 
-	method info( $msg, :$category ) {
+	method info( $msg, :$category, :$pipeline --> Bool ) {
 		self.log( :$msg, :severity( 'info' ), :$category );
 	}
 
-	method notice( $msg, :$category ) {
+	method notice( $msg, :$category, :$pipeline --> Bool ) {
 		self.log( :$msg, :severity( 'notice' ), :$category );
 	}
 
-	method debug( $msg, :$category ) {
+	method debug( $msg, :$category, :$pipeline --> Bool ) {
 		self.log( :$msg, :severity( 'debug' ), :$category );
 	}
 
-	method trace( $msg, :$category ) {
+	method trace( $msg, :$category, :$pipeline --> Bool ) {
 		self.log( :$msg, :severity( 'trace' ), :$category );
 	}
 
