@@ -10,7 +10,7 @@ Log.add( Log::Any::Adapter::File.new( '/path/to/file.log' ) );
 
 use Log::Any;
 Log.info( 'yolo' );
-Log.error( :category('security'), 'oups');
+Log.error( :category('security'), 'oups' );
 Log.log( :msg('msg from app'), :category( 'network' ), :severity( Log::Any::INFO ) );
 ```
 
@@ -95,9 +95,90 @@ use Log::Any::Adapter::STDOUT( :path('/path/to/file.log', :format( "$prefix \\d 
 TODO:
 An adapter can define a prefered formatter which will be used if no formatter are specified.
 
+## FILTERS
+
+Filters can be used to allow a log to be handled by an adapter.
+Many fields can be filtered, like the category, the severity or the message.
+
+The easiest way to define a filter is by using the _filter_ parameter of Log::Any.log method.
+
+```perl6
+Log::Any.add( Adapter.new, :filter( [ <filters fields goes here>] ) );
+```
+
+Filtering on category or message:
+```perl6
+# Matching by String
+Log::Any.add( Adapter.new, :filter( ['category' => 'My::Wonderfull::Lib' ] ) );
+# Matching by Regex
+Log::Any.add( Adapter.new, :filter( ['category' => /My::*::Lib/, 'severity' => '>warning' ] ) );
+
+# Matching msg by Regex
+Log::Any.add( Adapter.new, :filter( [ 'msg' => /a regex/ ] );
+```
+
+Filtering on severity:
+
+/!\ Work in progress /!\
+
+The can be considered as levels, so can be traited as numbers
+1. trace
+2. debug
+3. info
+4. notice
+5. warning
+6. error
+7. critical
+8. alert
+9. emergency
+
+This is a work in progress, the idea is to use a comparaison operator:
+```perl6
+filter => [ 'severity' => '>warning' ] # Above
+filter => [ 'severity' => '==debug'  ] # Equality
+filter => [ 'severity' => '<notice'  ] # Beside
+filter => [ 'severity' => [ 'notice', 'warning' ] ]
+filter => [ 'severity' => [ * - 'warning' ] ] # All but 'warning'
+```
+
+If several filters are specified, all must be valid
+
+```perl6
+# Use this adapter only if the category is My::Wonderfull::Lib and if the severity is warning or error
+[ 'severity' => '>=warning', 'category' => /My::Wonderfull::Lib/ ]
+```
+
+If a more complex filtering is necessary, a class can be created:
+```perl6
+# Use home-made filters
+class MyOwnFilter is Log::Any::Filter {
+	method filter( :$msg, :$severity, :$category ) returns Bool {
+		# Write some complicated tests
+		return True;
+	}
+}
+my $f = Filter.new
+Log::Any.add( Some::Adapter.new, :filter( $f ) );
+```
+
+### Filter linked to adapters
+
+A filter is linked to an adapter, and is used to decide if the log should be handle by this adapter.
+
+### Filters acting like barrier
+
+/!\ Work in progress /!\
+
+```perl6
+Log::Any.add( Adapter.new );
+Log::Any.add( :filter( [ severity => '>warning' ] );
+# Only logs with severity above _warning_ continues through the pipeline.
+Log::Any.add( Adapter2.new );
+```
+
 # PIPELINES
 
-A _pipeline_ is a set of Adapters and can be used to define alternatives path (a set of adapters, formatters and options). This allows to handle differently some logs (for example, for security or realtime).
+A _pipeline_ is a set of Adapters and can be used to define alternatives path (a set of adapters, filters, formatters and options (asynchronicity) ). This allows to handle differently some logs (for example, for security or realtime).
 If a log is produced with a specific facility which is not defined in the log consumers, the default facility is used.
 
 Pipelines can be specified when an Adapter is added.
@@ -140,18 +221,6 @@ use Log::Any ( :async );
 
 - with a watcher on the file ?
 	- pause dispatching during the reload ;
-
-## FILTERS
-
-### Filter linked to adapters
-
-A filter is linked to an adapter, and is used to decide if the log should be handle by this adapter.
-
-### Filter acting like an adapter in the pipeline
-
-logging -> getting the pipeline -> filtering --> proxy -> handling by adapter
-                                ^            |
-                                |<-----------|--> handling by adapter
 
 ## PROXYs
 

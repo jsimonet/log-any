@@ -1,6 +1,7 @@
 use v6.c;
 
 use Log::Any::Pipeline;
+use Log::Any::Filter;
 
 =begin pod
 =head1 Log::Any
@@ -19,18 +20,29 @@ class Log::Any {
 	}
 
 	# Log::Any.add
-	multi method add( Log::Any:U: Log::Any::Adapter $a ) {
-		return self.new.add( $a );
+	multi method add( Log::Any:U: Log::Any::Adapter $a, Log::Any::Filter :$filter ) {
+		return self.new.add( $a, :$filter );
 	}
 
 	# Log::Any.new.add
-	multi method add( Log::Any:D: Log::Any::Adapter $a ) {
-		%!pipelines{'_default'}.add( $a );
+	multi method add( Log::Any:D: Log::Any::Adapter $a, Log::Any::Filter :$filter ) {
+		%!pipelines{'_default'}.add( $a, :$filter );
 	}
 
-	proto method log(Log::Any: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {*}
+	# Log::Any.add with built-in filters
+	multi method add( Log::Any:U: Log::Any::Adapter $a, :@filter ) {
+		return self.new.add( $a, :@filter );
+	}
 
-	multi method log(Log::Any:U: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {
+	# Log::Any.new.add with built-in filters
+	multi method add( Log::Any:D: Log::Any::Adapter $a, :@filter ) {
+		my $filter = Log::Any::FilterBuiltIN.new( checks => @filter );
+		return self.add( $a, :$filter );
+	}
+
+	proto method log( Log::Any: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {*}
+
+	multi method log( Log::Any:U: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {
 		return Log::Any.new.log( :$msg, :$severity, :$category, :$pipeline );
 	}
 
