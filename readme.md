@@ -121,7 +121,7 @@ Filtering on severity:
 
 /!\ Work in progress /!\
 
-The can be considered as levels, so can be traited as numbers
+The severity can be considered as levels, so can be traited as numbers
 1. trace
 2. debug
 3. info
@@ -183,12 +183,25 @@ If a log is produced with a specific facility which is not defined in the log co
 
 Pipelines can be specified when an Adapter is added.
 ```perl6
-Log::Any.add( 'my-pipeline', Log::Any::Adapter::Example.new );
+Log::Any.add( :pipeline('security'), Log::Any::Adapter::Example.new );
 
-Log::Any.error( :pipeline<security>, :msg('security error!', ... ) );
+Log::Any.error( :pipeline('security'), :msg('security error!', ... ) );
 ```
 
 # EXTRA FEATURES
+
+## Exporting aliases
+
+Can be usefull to use more consise routines :
+
+```perl6
+use Log::Any( :subs );
+
+log-adapt( Adapter.new );
+
+warning( 'missing some configuration' );
+critical( 'a big problem occured' );
+```
 
 ## Wrapping
 
@@ -206,16 +219,19 @@ Dump a stacktrace with the log. This could be usefull to find a problem.
 	Is it necessary?
 	Is it possible to do in an Adapter or some Proxy ?
 
-# APPENDICE
+## Asynchronicity
 
+```perl6
 use Log::Any ( :async );
 
---async : enable asynchornous mode
-	wait for adapter to write data to the file/network/whatever…
+Log::Any.pipeline( 'myapp' ).async( True );
+```
 
---log-on-error : keep in cache logs in streams (all, from trace to info)
+## log-on-error
+
+keep in cache logs in streams (all, from trace to info)
 	- if an error occurs (how to detect, using a level?), log the stacktrace ;
-	- if nothing special occurs, log what as specified in the filters.
+	- if nothing special occurs, log cached logs as specified in the filters.
 
 ## Load log configuration from configuration files
 
