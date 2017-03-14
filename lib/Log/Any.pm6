@@ -2,13 +2,13 @@ use v6.c;
 
 use Log::Any::Pipeline;
 use Log::Any::Filter;
+use Log::Any::Definitions;
 
 =begin pod
 =head1 Log::Any
 =end pod
 class Log::Any {
 	my $instance;
-	my constant @SEVERITIES = <trace debug info notice warning error critical alert emergency>;
 
 	has %!pipelines = { '_default' => Log::Any::Pipeline.new };
 
@@ -54,7 +54,7 @@ Dies if severity is unknown.
 =end pod
 	multi method log(Log::Any:D: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {
 		# Check if the severity is handled
-		die "Unknown severity $severity" unless $severity ~~ @SEVERITIES.any;
+		die "Unknown severity $severity" unless $severity ~~ @Log::Any::Definitions::SEVERITIES.any;
 
 		# Search the package name of caller if $category is not set
 		# Can be null (Any) (no caller package)

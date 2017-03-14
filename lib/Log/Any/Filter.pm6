@@ -1,11 +1,14 @@
 use v6.c;
 
+use Log::Any::Definitions;
+
 class Log::Any::Filter {
 	proto method filter returns Bool { * }
 }
 
 class Log::Any::FilterBuiltIN is Log::Any::Filter {
 	has Pair @.checks where .value ~~ Str | Regex;
+	has @.severities = @Log::Any::Definitions::SEVERITIES;
 
 	method filter( :$msg!, :$severity!, :$category! ) returns Bool {
 		for @!checks -> $f {

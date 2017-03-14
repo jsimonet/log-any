@@ -32,6 +32,12 @@ It can take the following values:
 - debug
 - trace
 
+TODO:
+Idealy, the severity levels should be specifiable while creating the log system, because some users would need some other severity order.
+```perl6
+Log::Any.severities( [ 'level1', 'level2', … ] );
+```
+
 ## CATEGORY
 
 The category allows to classify them.
@@ -121,7 +127,8 @@ Filtering on severity:
 
 /!\ Work in progress /!\
 
-The severity can be considered as levels, so can be traited as numbers
+The severity can be considered as levels, so can be traited as numbers.
+
 1. trace
 2. debug
 3. info
@@ -160,10 +167,6 @@ class MyOwnFilter is Log::Any::Filter {
 my $f = Filter.new
 Log::Any.add( Some::Adapter.new, :filter( $f ) );
 ```
-
-### Filter linked to adapters
-
-A filter is linked to an adapter, and is used to decide if the log should be handle by this adapter.
 
 ### Filters acting like barrier
 
