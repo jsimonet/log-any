@@ -25,10 +25,13 @@ These attributes are used by the "Formatter" to format the log and can also be u
 
 The severity is the level of urgence of a log.
 It can take the following values:
+- emergency
+- alert
+- critical
 - error
 - warning
-- info
 - notice
+- info
 - debug
 - trace
 

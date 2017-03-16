@@ -12,6 +12,8 @@ class Log::Any {
 
 	has %!pipelines = { '_default' => Log::Any::Pipeline.new };
 
+	has %!severities = %Log::Any::Definitions::SEVERITIES;
+
 	method new {
 		unless $instance {
 			$instance = Log::Any.bless;
@@ -54,7 +56,7 @@ Dies if severity is unknown.
 =end pod
 	multi method log(Log::Any:D: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {
 		# Check if the severity is handled
-		die "Unknown severity $severity" unless $severity ~~ @Log::Any::Definitions::SEVERITIES.any;
+		die "Unknown severity $severity" unless %!severities{$severity};
 
 		# Search the package name of caller if $category is not set
 		# Can be null (Any) (no caller package)
