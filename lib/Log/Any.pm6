@@ -23,12 +23,12 @@ class Log::Any {
 	}
 
 	# Log::Any.add
-	multi method add( Log::Any:U: Log::Any::Adapter $a, :$filter, :$formatter ) {
+	multi method add( Log::Any:U: Log::Any::Adapter $a, Str :$pipeline = '_default', :$filter, :$formatter ) {
 		return self.new.add( $a, :$filter, :$formatter );
 	}
 
 	# Log::Any.new.add
-	multi method add( Log::Any:D: Log::Any::Adapter $a, :$filter, :$formatter ) {
+	multi method add( Log::Any:D: Log::Any::Adapter $a, Str :$pipeline = '_default', :$filter, :$formatter ) {
 		my Log::Any::Filter $local-filter;
 		my Log::Any::Formatter $local-formatter;
 
@@ -53,7 +53,10 @@ class Log::Any {
 			}
 		}
 
-		%!pipelines{'_default'}.add( $a, :filter( $local-filter ), :formatter( $local-formatter ) );
+		unless %!pipelines{$pipeline} {
+			%!pipelines{$pipeline} = Log::Any::Pipeline.new;
+		}
+		%!pipelines{$pipeline}.add( $a, :filter( $local-filter ), :formatter( $local-formatter ) );
 	}
 
 	proto method log( Log::Any: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {*}
@@ -68,7 +71,7 @@ class Log::Any {
 =head3 Exceptions
 Dies if severity is unknown.
 =end pod
-	multi method log(Log::Any:D: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {
+	multi method log(Log::Any:D: :$msg!, :$severity!, :$category is copy, :$pipeline is copy --> Bool ) {
 		# Check if the severity is handled
 		die "Unknown severity $severity" unless %!severities{$severity};
 
@@ -88,6 +91,7 @@ Dies if severity is unknown.
 		}
 
 		# Use the specified pipeline, or the default one
+		$pipeline //= '_default';
 		my $pipeline-instance = %!pipelines{ $pipeline } // %!pipelines{'_default'};
 		$pipeline-instance.dispatch( :$msg, :$severity, :$category );
 
@@ -96,39 +100,39 @@ Dies if severity is unknown.
 
 
 	method emergency( $msg, :$category, :$pipeline --> Bool ) {
-		self.log( :$msg, :severity( 'emergency' ), :$category );
+		self.log( :$msg, :severity( 'emergency' ), :$category, :$pipeline );
 	}
 
 	method alert( $msg, :$category, :$pipeline --> Bool ) {
-		self.log( :$msg, :severity( 'alert' ), :$category );
+		self.log( :$msg, :severity( 'alert' ), :$category, :$pipeline);
 	}
 
 	method critical( $msg, :$category, :$pipeline --> Bool ) {
-		self.log( :$msg, :severity( 'critical' ), :$category );
+		self.log( :$msg, :severity( 'critical' ), :$category, :$pipeline );
 	}
 
 	method error( $msg, :$category, :$pipeline --> Bool ) {
-		self.log( :$msg, :severity( 'error' ), :$category );
+		self.log( :$msg, :severity( 'error' ), :$category, :$pipeline );
 	}
 
 	method warning( $msg, :$category, :$pipeline --> Bool ) {
-		self.log( :$msg, :severity( 'warning' ), :$category );
+		self.log( :$msg, :severity( 'warning' ), :$category, :$pipeline );
 	}
 
 	method info( $msg, :$category, :$pipeline --> Bool ) {
-		self.log( :$msg, :severity( 'info' ), :$category );
+		self.log( :$msg, :severity( 'info' ), :$category, :$pipeline );
 	}
 
 	method notice( $msg, :$category, :$pipeline --> Bool ) {
-		self.log( :$msg, :severity( 'notice' ), :$category );
+		self.log( :$msg, :severity( 'notice' ), :$category, :$pipeline );
 	}
 
 	method debug( $msg, :$category, :$pipeline --> Bool ) {
-		self.log( :$msg, :severity( 'debug' ), :$category );
+		self.log( :$msg, :severity( 'debug' ), :$category, :$pipeline );
 	}
 
 	method trace( $msg, :$category, :$pipeline --> Bool ) {
-		self.log( :$msg, :severity( 'trace' ), :$category );
+		self.log( :$msg, :severity( 'trace' ), :$category, :$pipeline );
 	}
 
 }
