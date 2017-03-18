@@ -91,14 +91,14 @@ Formatters will use the attributes of a Log.
 |\\m   |Message      |Payload, explains what is going on           | none                     |
 
 ```perl6
-use Log::Any::Adapter::STDOUT( :format( '\d \c \m' ) );
+use Log::Any::Adapter::STDOUT( :formatter( '\d \c \m' ) );
 ```
 
 You can of course use variables in the formatter, but since _\\_ is already used in Perl6 strings interpolation, you have to escape them.
 
 ```perl6
 my $prefix = 'myapp ';
-use Log::Any::Adapter::STDOUT( :path('/path/to/file.log', :format( "$prefix \\d \\c \\s \\m" ) );
+use Log::Any::Adapter::STDOUT( :format( "$prefix \\d \\c \\s \\m" ) );
 ```
 
 TODO:

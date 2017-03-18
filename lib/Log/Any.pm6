@@ -2,6 +2,7 @@ use v6.c;
 
 use Log::Any::Pipeline;
 use Log::Any::Filter;
+use Log::Any::Formatter;
 use Log::Any::Definitions;
 
 =begin pod
@@ -22,24 +23,37 @@ class Log::Any {
 	}
 
 	# Log::Any.add
-	multi method add( Log::Any:U: Log::Any::Adapter $a, Log::Any::Filter :$filter ) {
-		return self.new.add( $a, :$filter );
+	multi method add( Log::Any:U: Log::Any::Adapter $a, :$filter, :$formatter ) {
+		return self.new.add( $a, :$filter, :$formatter );
 	}
 
 	# Log::Any.new.add
-	multi method add( Log::Any:D: Log::Any::Adapter $a, Log::Any::Filter :$filter ) {
-		%!pipelines{'_default'}.add( $a, :$filter );
-	}
+	multi method add( Log::Any:D: Log::Any::Adapter $a, :$filter, :$formatter ) {
+		my Log::Any::Filter $local-filter;
+		my Log::Any::Formatter $local-formatter;
 
-	# Log::Any.add with built-in filters
-	multi method add( Log::Any:U: Log::Any::Adapter $a, :@filter ) {
-		return self.new.add( $a, :@filter );
-	}
+		given $filter {
+			when Array {
+				$local-filter = Log::Any::FilterBuiltIN.new( checks => @$filter );
+			}
+			when Log::Any::Filter {
+				$local-filter = $filter;
+			}
+		}
 
-	# Log::Any.new.add with built-in filters
-	multi method add( Log::Any:D: Log::Any::Adapter $a, :@filter ) {
-		my $filter = Log::Any::FilterBuiltIN.new( checks => @filter );
-		return self.add( $a, :$filter );
+		given $formatter {
+			when Str {
+				$local-formatter = Log::Any::FormatterBuiltIN.new( :format( $formatter ) );
+			}
+			when Log::Any::Formatter {
+				$local-formatter = $formatter;
+			}
+			default {
+				$local-formatter = Log::Any::FormatterBuiltIN.new;
+			}
+		}
+
+		%!pipelines{'_default'}.add( $a, :filter( $local-filter ), :formatter( $local-formatter ) );
 	}
 
 	proto method log( Log::Any: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {*}
