@@ -11,7 +11,7 @@ Log.add( Log::Any::Adapter::File.new( '/path/to/file.log' ) );
 use Log::Any;
 Log.info( 'yolo' );
 Log.error( :category('security'), 'oups' );
-Log.log( :msg('msg from app'), :category( 'network' ), :severity( Log::Any::INFO ) );
+Log.log( :msg('msg from app'), :category( 'network' ), :severity( 'info' ) );
 ```
 
 # DESCRIPTION
@@ -248,3 +248,13 @@ keep in cache logs in streams (all, from trace to info)
 
 A proxy is a class used to intercept messages before they are relly sent to the log subroutine. They can be usefull to log more than strings, or to analyse the message. They can also add some data in the message like tags.
 	todo: is a filter, a proxy?
+
+## INTROSPECTION
+
+- Print a pipeline
+- check if a log will be handled (to prevent computation of log) ;
+```perl6
+Log::Any.debug( serialize( $some-complex-object ) ) if Log::Any.will-log;
+```
+It's not faisable if the filter applies on the message…
+
