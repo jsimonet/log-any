@@ -10,6 +10,7 @@ class Log::Any::FilterBuiltIN is Log::Any::Filter {
 	has Pair @.checks where .value ~~ Str | Regex;
 	has %.severities = %Log::Any::Definitions::SEVERITIES;
 
+	# TODO: gives the ability to filter on the dateTime ?
 	method filter( :$msg!, :$severity!, :$category! ) returns Bool {
 
 		for @!checks -> $f {

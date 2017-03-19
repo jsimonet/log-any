@@ -90,10 +90,13 @@ Dies if severity is unknown.
 			}
 		}
 
+		# Capture the date as soon as possible
+		my $dateTime = DateTime.new( now );
+
 		# Use the specified pipeline, or the default one
 		$pipeline //= '_default';
 		my $pipeline-instance = %!pipelines{ $pipeline } // %!pipelines{'_default'};
-		$pipeline-instance.dispatch( :$msg, :$severity, :$category );
+		$pipeline-instance.dispatch( :$dateTime, :$msg, :$severity, :$category );
 
 		return True;
 	}

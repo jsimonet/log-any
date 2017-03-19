@@ -29,7 +29,7 @@ class Log::Any::Pipeline {
 		push @!adapters, %elem;
 	}
 
-	method dispatch( :$msg!, :$severity!, :$category! ) {
+	method dispatch( DateTime :$dateTime!, :$msg!, :$severity!, :$category! ) {
 		#note "{now} dispatching $msg, adapter count : @!adapters.elems()";
 		for @!adapters -> %elem {
 			# Filter : check if the adapter meets the requirements
@@ -40,7 +40,7 @@ class Log::Any::Pipeline {
 			# Formatter
 			my $msgToHandle = $msg;
 			with %elem{'formatter'} {
-				$msgToHandle = %elem{'formatter'}.format( :$msg, :$category, :$severity );
+				$msgToHandle = %elem{'formatter'}.format( :$dateTime, :$msg, :$category, :$severity );
 			}
 
 			# Proxies
