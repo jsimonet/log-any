@@ -258,3 +258,6 @@ How?
 	- tags: [ tag1, tag2 ]
 	- how to log them (array) ?
 
+## Die on error
+
+Returns an error (logging, exception?) if a log is not handled.
