@@ -18,25 +18,24 @@ class Log::Any::FilterBuiltIN is Log::Any::Filter {
 				when 'severity' {
 					given $f.value {
 						when /^ '<=' / {
-							return False unless %!severities{$f.value.substr(2)} <= %!severities{$severity};
+							return False unless %!severities{$severity} <= %!severities{$f.value.substr(2)};
 						}
 						when /^ '>=' / {
-							return False unless %!severities{$f.value.substr(2)} >= %!severities{$severity};
+							return False unless %!severities{$severity} >= %!severities{$f.value.substr(2)};
 						}
 						when /^ '<' / {
-							return False unless %!severities{$f.value.substr(1)} < %!severities{$severity};
+							return False unless %!severities{$severity} < %!severities{$f.value.substr(1)};
 						}
 						when /^ '>' / {
-							return False unless %!severities{$f.value.substr(1)} > %!severities{$severity};
+							return False unless %!severities{$severity} > %!severities{$f.value.substr(1)};
 						}
 						when /^ '=' / {
-							return False unless %!severities{$f.value.substr(1)} == %!severities{$severity};
+							return False unless %!severities{$severity} == %!severities{$f.value.substr(1)};
 						}
 						when /^ '!=' / {
-							return False unless %!severities{$f.value.substr(2)} !== %!severities{$severity};
+							return False unless %!severities{$severity} !== %!severities{$f.value.substr(2)};
 						}
 						default {
-							note "nothing special matched";
 							return False;
 						}
 					}
