@@ -54,6 +54,7 @@ class Log::Any {
 		}
 
 		unless %!pipelines{$pipeline} {
+			# note "Adding adapter to pipeline $pipeline";
 			%!pipelines{$pipeline} = Log::Any::Pipeline.new;
 		}
 		%!pipelines{$pipeline}.add( $a, :filter( $local-filter ), :formatter( $local-formatter ) );
@@ -88,6 +89,7 @@ Dies if severity is unknown.
 					last;
 				}
 			}
+			$category //= '';
 		}
 
 		# Escape newlines caracters in message
@@ -98,6 +100,7 @@ Dies if severity is unknown.
 
 		# Use the specified pipeline, or the default one
 		$pipeline //= '_default';
+		# note "Logging using pipeline $pipeline";
 		my $pipeline-instance = %!pipelines{ $pipeline } // %!pipelines{'_default'};
 		$pipeline-instance.dispatch( :$dateTime, :$msg, :$severity, :$category );
 
