@@ -1,8 +1,12 @@
 {
 	"perl" : "6.c",
 	"name" : "Log::Any",
-	"version" : "0.0.1",
-	"description" : "Generate and handle logs with pipelines and filters.",
+	"version" : "0.5.0",
+	"description" : "Generate and handle logs with pipelines, filters and formatters.",
+	"tags" : [
+		"log", "logging", "logger",
+		"async", "asynchronous"
+	],
 	"authors" : [ "Julien Simonet" ],
 	"provides" : {
 		"Log::Any" : "lib/Log/Any.pm6",
@@ -17,9 +21,12 @@
 		"Log::Any::FormatterBuiltIN" : "lib/Log/Any/Filter.pm6"
 	},
 	"depends" : [
+	],
+	"test-depends" : [
 		"Test",
 		"Test::META"
 	],
 	"resources" : [ ],
+	"license" : "Artistic-2.0",
 	"source-url" : "git://github.com/you/Vortex-TotalPerspective.git"
 }
