@@ -9,7 +9,7 @@ This test file tests if basic methods can be called, if the formatter is working
 
 use Test;
 
-plan 20;
+plan 21;
 
 use Log::Any;
 
@@ -50,6 +50,10 @@ Log::Any.add( $a );
 Log::Any.log( :msg( 'test-1' ), :category( 'test-basic' ), :severity('debug') );
 is $a.logs, [ 'test-1' ], 'Log "test-1" with default pipeline';
 
+Log::Any.info( "msg\nwith \n newlines\n\n" );
+is $a.logs[*-1], 'msg\nwith \n newlines\n\n', 'Newlines correctly removed';
+
+
 # Formatter test
 # test-2 pipeline
 $a.logs = [];
@@ -59,7 +63,7 @@ my $before-log = DateTime.new( now );
 Log::Any.log( :pipeline( 'test-2' ), :msg('test-2'), :severity( 'trace' ), :category( 'test-category' ) );
 my $after-log = DateTime.new( now );
 
-with $a.logs.head {
+with $a.logs[*-1] {
 	like $_, /^ (<-[\s]>+) \s 'trace test-category test-2' $/, 'Log with formatter in test-2 pipeline';
 	# Check if log dateTime is after $before-log, and before $after-log
 	with $_ ~~ /^ (<-[\s]>+)/ {
