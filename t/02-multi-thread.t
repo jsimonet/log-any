@@ -23,7 +23,7 @@ my $mtt = MultiThreadTest.new;
 
 {
 	use Log::Any;
-	Log::Any.add( $mtt );
+	Log::Any.add( $mtt, :formatter( '\c \s: \m' ) );
 }
 
 await start {
@@ -32,5 +32,7 @@ await start {
 
 {
 	is $mtt.logs.elems, 1, 'Count logs ok';
-	is $mtt.logs[0], 'a test from ToLog', 'Message log ok';
+
+	# Check if Category is correctly set to caller class name
+	is $mtt.logs[0], 'ToLog notice: a test from ToLog', 'Message log ok';
 }
