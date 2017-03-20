@@ -24,7 +24,7 @@ class Log::Any {
 
 	# Log::Any.add
 	multi method add( Log::Any:U: Log::Any::Adapter $a, Str :$pipeline = '_default', :$filter, :$formatter ) {
-		return self.new.add( $a, :$filter, :$formatter );
+		return self.new.add( $a, :$pipeline, :$filter, :$formatter );
 	}
 
 	# Log::Any.new.add
