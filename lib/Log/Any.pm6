@@ -144,4 +144,9 @@ Dies if severity is unknown.
 		self.log( :$msg, :severity( 'trace' ), :$category, :$pipeline );
 	}
 
+	# Dump Log::Any pipelines
+	method gist {
+		return 'Log::Any.new(pipelines => ' ~ %!pipelines.gist ~ ', severities => ' ~ %!severities.gist ~ ')';
+	}
+
 }

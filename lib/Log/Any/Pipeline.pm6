@@ -50,4 +50,9 @@ class Log::Any::Pipeline {
 		}
 	}
 
+	# Dump the adapters
+	method gist {
+		return 'Log::Any::Pipeline.new(adapters => ' ~ @!adapters.gist ~ ')';
+	}
+
 }
