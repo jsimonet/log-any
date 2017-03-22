@@ -185,6 +185,12 @@ Log::Any.add( :pipeline('security'), Log::Any::Adapter::Example.new );
 Log::Any.error( :pipeline('security'), :msg('security error!', ... ) );
 ```
 
+# DEBUGGING
+
+## gist method
+
+_gist_ method prints a string representing the internal Log::Any state (defined pipelines with their adapters, filters and formatters). Since many attributes are not public, you cannot recreate a Log::Any stack based on this representation.
+
 # EXTRA FEATURES
 
 ## Exporting aliases
@@ -242,7 +248,6 @@ A proxy is a class used to intercept messages before they are relly sent to the 
 
 ## INTROSPECTION
 
-- Print a pipeline
 - check if a log will be handled (to prevent computation of log) ;
 ```perl6
 Log::Any.debug( serialize( $some-complex-object ) ) if Log::Any.will-log;
