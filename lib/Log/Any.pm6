@@ -108,6 +108,37 @@ Dies if severity is unknown.
 	}
 
 
+	# Check if the filter will be accepted with the specified attributes
+	method will-log( :$severity!, :$category, :$pipeline = '_default' ) returns Bool {
+
+		# Check if the severity is handled
+		die "Unknown severity $severity" unless %!severities{$severity};
+
+		# Search the package name of caller if $category is not set
+		# Can be null (Any) (no caller package)
+		unless $category {
+			# Search the package name of the caller
+			for Backtrace.new -> $b {
+				if $b.code ~~ Routine {
+					if $b.code.package.^name ~~ /^ 'Log::Any' | ^ 'Backtrace' / {
+						next;
+					}
+					$category = $b.code.package.^name;
+					last;
+				}
+			}
+			$category //= '';
+		}
+
+		# Use the specified pipeline, or the default one
+		$pipeline //= '_default';
+		# note "Logging using pipeline $pipeline";
+		my $pipeline-instance = %!pipelines{ $pipeline } // %!pipelines{'_default'};
+
+		return $pipeline-instance.will-dispatch( :$severity, :$category );
+	}
+
+
 	method emergency( $msg, :$category, :$pipeline --> Bool ) {
 		self.log( :$msg, :severity( 'emergency' ), :$category, :$pipeline );
 	}
@@ -142,6 +173,43 @@ Dies if severity is unknown.
 
 	method trace( $msg, :$category, :$pipeline --> Bool ) {
 		self.log( :$msg, :severity( 'trace' ), :$category, :$pipeline );
+	}
+
+
+	method will-emergency( :$category, :$pipeline = '_default' ) returns Bool {
+		return self.will-log( :severity('emergency'), :$category, :$pipeline );
+	}
+
+	method will-alert( :$category, :$pipeline = '_default' ) returns Bool {
+		return self.will-log( :severity('alert'), :$category, :$pipeline );
+	}
+
+	method will-critical( :$category, :$pipeline = '_default' ) returns Bool {
+		return self.will-log( :severity('critical'), :$category, :$pipeline );
+	}
+
+	method will-error( :$category, :$pipeline = '_default' ) returns Bool {
+		return self.will-log( :severity('error'), :$category, :$pipeline );
+	}
+
+	method will-warning( :$category, :$pipeline = '_default' ) returns Bool {
+		return self.will-log( :severity('warning'), :$category, :$pipeline );
+	}
+
+	method will-info( :$category, :$pipeline = '_default' ) returns Bool {
+		return self.will-log( :severity('info'), :$category, :$pipeline );
+	}
+
+	method will-notice( :$category, :$pipeline = '_default' ) returns Bool {
+		return self.will-log( :severity('notice'), :$category, :$pipeline );
+	}
+
+	method will-debug( :$category, :$pipeline = '_default' ) returns Bool {
+		return self.will-log( :severity('debug'), :$category, :$pipeline );
+	}
+
+	method will-trace( :$category, :$pipeline = '_default' ) returns Bool {
+		return self.will-log( :severity('trace'), :$category, :$pipeline );
 	}
 
 	# Dump Log::Any pipelines

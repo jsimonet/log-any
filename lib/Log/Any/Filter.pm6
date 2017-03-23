@@ -11,7 +11,7 @@ class Log::Any::FilterBuiltIN is Log::Any::Filter {
 	has %.severities = %Log::Any::Definitions::SEVERITIES;
 
 	# TODO: gives the ability to filter on the dateTime ?
-	method filter( :$msg!, :$severity!, :$category! ) returns Bool {
+	method filter( :$msg! = '', :$severity!, :$category! ) returns Bool {
 
 		for @!checks -> $f {
 			given $f.key {
@@ -46,7 +46,9 @@ class Log::Any::FilterBuiltIN is Log::Any::Filter {
 				}
 				when 'msg' {
 					#note "checking $f.key() with $f.value().perl()";
-					return False unless $msg ~~ $f.value();
+					if $msg {
+						return False unless $msg ~~ $f.value();
+					}
 				}
 				default {
 					#note "default, oops";

@@ -6,8 +6,12 @@ use Log::Any::Formatter;
 
 =begin pod
 =head1 Log::Any::Pipeline
-A pipeline have to choose which Adapter will handle the log, depending on the
-Log's attributes (category, severity, size of the message, etc.).
+
+	A pipeline have to choose which Adapter will handle the log, depending on the
+	Log's attributes (category, severity, size of the message, etc.).
+
+	A pipeline is composed of elements, which contains an Adapter and possibly
+	a Filter, a Formatter and/or a Proxy.
 =end pod
 
 class Log::Any::Pipeline {
@@ -29,25 +33,46 @@ class Log::Any::Pipeline {
 		push @!adapters, %elem;
 	}
 
-	method dispatch( DateTime :$dateTime!, :$msg!, :$severity!, :$category! ) {
-		#note "{now} dispatching $msg, adapter count : @!adapters.elems()";
+=begin pod
+=head2 get-next-elem
+
+	This method returns the next element of the pipeline wich is matching
+	the filter.
+=end pod
+	method !get-next-elem( :$msg, :$severity, :$category ) {
+		my %next-elem;
+
 		for @!adapters -> %elem {
 			# Filter : check if the adapter meets the requirements
 			with %elem{'filter'} {
 				next unless  %elem{'filter'}.filter( :$msg, :$severity, :$category );
 			}
-
-			# Formatter
-			my $msgToHandle = $msg;
-			with %elem{'formatter'} {
-				$msgToHandle = %elem{'formatter'}.format( :$dateTime, :$msg, :$category, :$severity );
-			}
-
-			# Proxies
-			%elem{'adapter'}.handle( $msgToHandle );
-
+			# Without filter, it's ok
+			%next-elem = %elem;
 			last;
 		}
+
+		return %next-elem;
+	}
+
+	method dispatch( DateTime :$dateTime!, :$msg!, :$severity!, :$category! ) {
+		#note "{now} dispatching $msg, adapter count : @!adapters.elems()";
+
+		my %elem = self!get-next-elem( :$msg, :$severity, :$category );
+		if %elem {
+			# Formatter
+			my $msgToHandle = $msg;
+			$msgToHandle = %elem{'formatter'}.?format( :$dateTime, :$msg, :$category, :$severity );
+
+			# Proxies
+
+			# Handling
+			%elem{'adapter'}.handle( $msgToHandle );
+		}
+	}
+
+	method will-dispatch( :$severity, :$category ) returns Bool {
+		return self!get-next-elem( :$severity, :$category ).so;
 	}
 
 	# Dump the adapters

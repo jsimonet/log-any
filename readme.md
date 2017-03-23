@@ -248,11 +248,12 @@ A proxy is a class used to intercept messages before they are relly sent to the 
 
 ## INTROSPECTION
 
-- check if a log will be handled (to prevent computation of log) ;
+Check if a log will be handled (to prevent computation of log) ;
+
 ```perl6
-Log::Any.debug( serialize( $some-complex-object ) ) if Log::Any.will-log;
+Log::Any.debug( serialize( $some-complex-object ) ) if Log::Any.will-log( :severity('debug') );
+Log::Any.will-debug(); # Alias to will-log( :severity('debug') )
 ```
-It's not faisable if the filter applies on the message…
 
 ## TAGS
 
