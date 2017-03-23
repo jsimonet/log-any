@@ -1,0 +1,3 @@
+# Move msg sanitazing (removing newlines) after filtering step ?
+
+The filter could match on the same msg as provided by the user.
