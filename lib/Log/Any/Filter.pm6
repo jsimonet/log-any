@@ -7,7 +7,7 @@ class Log::Any::Filter {
 }
 
 class Log::Any::FilterBuiltIN is Log::Any::Filter {
-	has Pair @.checks where .value ~~ Str | Regex;
+	has Pair @.checks where .value ~~ Str | Regex | List;
 	has %.severities = %Log::Any::Definitions::SEVERITIES;
 
 	# TODO: gives the ability to filter on the dateTime ?
@@ -34,6 +34,9 @@ class Log::Any::FilterBuiltIN is Log::Any::Filter {
 						}
 						when /^ '!=' / {
 							return False unless %!severities{$severity} !== %!severities{$f.value.substr(2)};
+						}
+						when Array {
+							return so $severity ~~ any( %!severities{$f.value}:k );
 						}
 						default {
 							return False;

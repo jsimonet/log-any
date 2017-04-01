@@ -24,7 +24,7 @@ These attributes are used by the "Formatter" to format the log and can also be u
 ## SEVERITY
 
 The severity is the level of urgence of a log.
-It can take the following values:
+It can take the following values (based on Syslog):
 - emergency
 - alert
 - critical
@@ -95,7 +95,7 @@ use Log::Any::Adapter::STDOUT( :format( "$prefix \\d \\c \\s \\m" ) );
 TODO:
 An adapter can define a prefered formatter which will be used if no formatter are specified.
 
-## FILTERS
+# FILTERS
 
 Filters can be used to allow a log to be handled by an adapter.
 Many fields can be filtered, like the category, the severity or the message.
@@ -119,8 +119,6 @@ Log::Any.add( Adapter.new, :filter( [ 'msg' => /a regex/ ] );
 
 Filtering on severity:
 
-/!\ Work in progress /!\
-
 The severity can be considered as levels, so can be traited as numbers.
 
 1. trace
@@ -133,12 +131,23 @@ The severity can be considered as levels, so can be traited as numbers.
 8. alert
 9. emergency
 
-This is a work in progress, the idea is to use a comparaison operator:
+Filtering on severity can be done by specifying an operator in front of the severity:
+
 ```perl6
 filter => [ 'severity' => '>warning' ] # Above
 filter => [ 'severity' => '==debug'  ] # Equality
 filter => [ 'severity' => '<notice'  ] # Beside
+```
+
+Matching only several severities is also possible:
+
+```perl6
 filter => [ 'severity' => [ 'notice', 'warning' ] ]
+```
+
+TODO: matching all but a list of severities:
+
+```perl6
 filter => [ 'severity' => [ * - 'warning' ] ] # All but 'warning'
 ```
 
@@ -158,11 +167,11 @@ class MyOwnFilter is Log::Any::Filter {
 		return True;
 	}
 }
-my $f = Filter.new
-Log::Any.add( Some::Adapter.new, :filter( $f ) );
+
+Log::Any.add( Some::Adapter.new, :filter( MyOwnFilter.new ) );
 ```
 
-### Filters acting like barrier
+## Filters acting like barrier
 
 /!\ Work in progress /!\
 
