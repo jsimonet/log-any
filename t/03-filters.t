@@ -6,7 +6,7 @@ use v6.c;
 
 use Test;
 
-plan 12;
+plan 13;
 
 use Log::Any;
 use Log::Any::Adapter;
@@ -107,6 +107,14 @@ is $b.logs[*-1], 'Bar msg from Foo::get-method', 'Category filtering';
 # category filter on regex
 
 # SEVERITY
+
+$a .= new;
+Log::Any.add( $a, :pipeline( 'filter on severity' ), :filter( [ severity => 'info' ] ) );
+
+# Only the first log should be present in the Adapter
+Log::Any.info( :pipeline( 'filter on severity' ), 'info severity' );
+Log::Any.warning( :pipeline( 'filter on severity' ), 'error severity' );
+is $a.elems == 1 && $a.logs[*-1], 'info severity';
 
 
 # MULTIPLE FILTERS
