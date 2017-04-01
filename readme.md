@@ -5,19 +5,19 @@ Log::Any
 # SYNOPSIS
 
 ```perl6
-use Log::Any::Adapter::File;
-Log.add( Log::Any::Adapter::File.new( '/path/to/file.log' ) );
-
 use Log::Any;
-Log.info( 'yolo' );
-Log.error( :category('security'), 'oups' );
-Log.log( :msg('msg from app'), :category( 'network' ), :severity( 'info' ) );
+use Log::Any::Adapter::File;
+Log::Any.add( Log::Any::Adapter::File.new( '/path/to/file.log' ) );
+
+Log::Any.info( 'yolo' );
+Log::Any.error( :category('security'), 'oups' );
+Log::Any.log( :msg('msg from app'), :category( 'network' ), :severity( 'info' ) );
 ```
 
 # DESCRIPTION
 
 Log::Any is a library to generate and handle application logs.
-A log is a message indicating an application status in a moment in time. It has attributes, like a _severity_ (error, warning, debug, …), a _category_, a _date_ and a _message_.
+A log is a message indicating an application status at a given time. It has attributes, like a _severity_ (error, warning, debug, …), a _category_, a _date_ and a _message_.
 
 These attributes are used by the "Formatter" to format the log and can also be used to filter logs and to choose where the log will be handled (via Adapters).
 
@@ -43,7 +43,12 @@ Log::Any.severities( [ 'level1', 'level2', … ] );
 
 ## CATEGORY
 
-The category allows to classify them.
+The category can be seen as a group identifier.
+
+Ex:
+- security ;
+- database ;
+- ...
 
 _Default value_ : the package name where the log is generated.
 
@@ -67,10 +72,32 @@ A few examples:
 - Log::Any::Adapter::Database::SQL
 - Log::Any::Adapter::STDOUT
 
-## FORMATTERS
+## Provided adapters
+
+### File
+
+```perl6
+use Log::Any::Adapter::File;
+Log::Any.add( Log::Any::Adapter::File.new( path => '/path/to/file.log' ) );
+```
+
+### Stdout
+
+```perl6
+use Log::Any::Adapter::Stdout;
+Log::Any.add( Log::Any::Adapter::Stdout.new );
+```
+
+### Stderr
+
+```perl6
+use Log::Any::Adapter::Stderr;
+Log::Any.add( Log::Any::Adapter::Stderr.new );
+```
+
+# FORMATTERS
 
 Often, logs need to be formatted to simplify the storage (time-series databases), or the analysis (grep, log parser).
-Formatters are just a string which defines the log format.
 
 Formatters will use the attributes of a Log.
 
@@ -90,6 +117,18 @@ You can of course use variables in the formatter, but since _\\_ is already used
 ```perl6
 my $prefix = 'myapp ';
 use Log::Any::Adapter::STDOUT( :format( "$prefix \\d \\c \\s \\m" ) );
+```
+
+A formatter can be more complex than the default one by extending the class _Formatter_.
+
+```perl6
+use Log::Any::Formatter;
+
+class MyOwnFormatter is Log::Any::Formatter {
+	method format( :$dateTime!, :$msg!, :$category!, :$severity! ) {
+		# Returns an Str
+	}
+}
 ```
 
 TODO:
@@ -185,13 +224,43 @@ Log::Any.add( Adapter2.new );
 # PIPELINES
 
 A _pipeline_ is a set of Adapters and can be used to define alternatives path (a set of adapters, filters, formatters and options (asynchronicity) ). This allows to handle differently some logs (for example, for security or realtime).
-If a log is produced with a specific facility which is not defined in the log consumers, the default facility is used.
+If a log is produced with a specific pipeline which is not defined in the log consumers, the default pipeline is used.
 
 Pipelines can be specified when an Adapter is added.
 ```perl6
 Log::Any.add( :pipeline('security'), Log::Any::Adapter::Example.new );
 
 Log::Any.error( :pipeline('security'), :msg('security error!', ... ) );
+```
+
+# INTROSPECTION
+
+Check if a log will be handled (to prevent computation of log).
+It is usefull if you want to log a dump of a complex object which can take time.
+
+## will-log method
+
+This method can takes in parameters the *category*, the *severity* and the *pipeline* to use.
+Theses parameters are then used to check if the message could pass through the pipelines and will be handled.
+
+/!\ *msg* parameter cannot be tested, so if a filter acts on it, the results will differ between will-log() and log().  /!\
+
+```perl6
+if Log::Any.will-log( :severity('debug') ) {
+	Log::Any.debug( serialize( $some-complex-object ) );
+}
+```
+
+## will-log aliases
+
+Some aliases are defined and provide the severity.
+
+- will-emergency()
+- …
+- will-trace()
+
+```perl6
+Log::Any.will-debug(); # Alias to will-log( :severity('debug') )
 ```
 
 # DEBUGGING
@@ -255,20 +324,11 @@ keep in cache logs in streams (all, from trace to info)
 A proxy is a class used to intercept messages before they are relly sent to the log subroutine. They can be usefull to log more than strings, or to analyse the message. They can also add some data in the message like tags.
 	todo: is a filter, a proxy?
 
-## INTROSPECTION
-
-Check if a log will be handled (to prevent computation of log) ;
-
-```perl6
-Log::Any.debug( serialize( $some-complex-object ) ) if Log::Any.will-log( :severity('debug') );
-Log::Any.will-debug(); # Alias to will-log( :severity('debug') )
-```
-
 ## TAGS
 
 Where?
 	- in place of category ?
-	- as extended intormations ? +1
+	- as extended informations ? +1
 How?
 	- tags: [ tag1, tag2 ]
 	- how to log them (array) ?
@@ -276,3 +336,24 @@ How?
 ## Die on error
 
 Returns an error (logging, exception?) if a log is not handled.
+
+## Does not log duplicate messages
+
+Check if a log message already been logged during the last <timespec>.
+
+Will call the proxy before logging the message.
+	- if the message already been seen n times during the last 1s, increment a counter and return false (meaning the log will not be logged).
+		- a timer executing every n s will print a message like '$msg has been seen n times during the last n s' ;
+			- empty the stack
+	- if not, log basically the message.
+
+```perl6
+Log::Any.add( $adapter, :proxy( Log::Any::Proxy::CacheUnpoisonning.new( :stack-size( 10 ), :time-interval( '1s' ) );
+```
+
+Prints something like:
+```
+Wow an error in an infinite loop...
+* Log::Any : previous message reapeated n times during last 1s.
+```
+
