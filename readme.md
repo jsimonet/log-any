@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/jsimonet/log-any.svg?branch=master)](https://travis-ci.org/jsimonet/log-any)
+
 # NAME
 
 Log::Any
@@ -20,6 +22,8 @@ Log::Any is a library to generate and handle application logs.
 A log is a message indicating an application status at a given time. It has attributes, like a _severity_ (error, warning, debug, …), a _category_, a _date_ and a _message_.
 
 These attributes are used by the "Formatter" to format the log and can also be used to filter logs and to choose where the log will be handled (via Adapters).
+
+Like the Perl5 implementation (https://metacpan.org/pod/Log::Any), the idea is to split log generation and log management.
 
 ## SEVERITY
 
