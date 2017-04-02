@@ -2,11 +2,18 @@ use v6.c;
 
 =begin pod
 =head1 Test if Log::Any logs correctly.
+
+=item1 Test on msg filter with Str
+=item1 Test on msg filter with Regex
+=item1 Test if category package is correctly set to caller package name (class)
+=item1 Test on category filter with Str
+=item1 Test on category filter with Regex
+=item1 Test severity filters (exact match, array matches, operators matches)
 =end pod
 
 use Test;
 
-plan 13;
+plan 18;
 
 use Log::Any;
 use Log::Any::Adapter;
@@ -112,9 +119,64 @@ $a .= new;
 Log::Any.add( $a, :pipeline( 'filter on severity' ), :filter( [ severity => 'info' ] ) );
 
 # Only the first log should be present in the Adapter
-Log::Any.info( :pipeline( 'filter on severity' ), 'info severity' );
-Log::Any.warning( :pipeline( 'filter on severity' ), 'error severity' );
-is $a.elems == 1 && $a.logs[*-1], 'info severity';
+Log::Any.info(      :pipeline( 'filter on severity' ), 'info severity'      );
+Log::Any.trace(     :pipeline( 'filter on severity' ), 'trace severity'     );
+Log::Any.debug(     :pipeline( 'filter on severity' ), 'debug severity'     );
+Log::Any.notice(    :pipeline( 'filter on severity' ), 'notice severity'    );
+Log::Any.warning(   :pipeline( 'filter on severity' ), 'warning severity'   );
+Log::Any.error(     :pipeline( 'filter on severity' ), 'error severity'     );
+Log::Any.critical(  :pipeline( 'filter on severity' ), 'critical severity'  );
+Log::Any.alert(     :pipeline( 'filter on severity' ), 'alert severity'     );
+Log::Any.emergency( :pipeline( 'filter on severity' ), 'emergency severity' );
 
+is $a.elems == 1 && $a.logs[*-1], 'info severity', 'filter on severity == info';
+
+
+# Test if the severity is above notice
+$a .= new;
+$b .= new;
+Log::Any.add( $a, :pipeline( 'filter on severity' ), :filter( [ severity => '>notice' ] ) );
+Log::Any.add( $b, :pipeline( 'filter on severity' ), :filter( [ severity => '<=notice' ] ) );
+
+Log::Any.trace(     :pipeline( 'filter on severity' ), 'trace severity'     );
+Log::Any.debug(     :pipeline( 'filter on severity' ), 'debug severity'     );
+Log::Any.info(      :pipeline( 'filter on severity' ), 'info severity'      );
+Log::Any.notice(    :pipeline( 'filter on severity' ), 'notice severity'    );
+Log::Any.warning(   :pipeline( 'filter on severity' ), 'warning severity'   );
+Log::Any.error(     :pipeline( 'filter on severity' ), 'error severity'     );
+Log::Any.critical(  :pipeline( 'filter on severity' ), 'critical severity'  );
+Log::Any.alert(     :pipeline( 'filter on severity' ), 'alert severity'     );
+Log::Any.emergency( :pipeline( 'filter on severity' ), 'emergency severity' );
+
+is $a.logs, ['warning severity', 'error severity', 'critical severity', 'alert severity', 'emergency severity'], 'filter on severity > notice';
+is $b.logs, ['trace severity', 'debug severity', 'notice severity'], 'filter on severity <= notice';
+
+$a .= new;
+$b .= new;
+my $c = AdapterDebug.new;
+# Test when severity filter is an array
+Log::Any.add( $a, :pipeline( 'filter on severity array' ), :filter( [ severity => [ 'debug'                      ] ] ) );
+Log::Any.add( $b, :pipeline( 'filter on severity array' ), :filter( [ severity => [ 'info',  'emergency'         ] ] ) );
+Log::Any.add( $c, :pipeline( 'filter on severity array' ), :filter( [ severity => [ 'trace', 'critical', 'alert', 'error', 'warning', 'notice'] ] ) );
+
+Log::Any.trace(     :pipeline( 'filter on severity array' ), 'trace severity'     );
+Log::Any.debug(     :pipeline( 'filter on severity array' ), 'debug severity'     );
+Log::Any.info(      :pipeline( 'filter on severity array' ), 'info severity'      );
+Log::Any.notice(    :pipeline( 'filter on severity array' ), 'notice severity'    );
+Log::Any.warning(   :pipeline( 'filter on severity array' ), 'warning severity'   );
+Log::Any.error(     :pipeline( 'filter on severity array' ), 'error severity'     );
+Log::Any.critical(  :pipeline( 'filter on severity array' ), 'critical severity'  );
+Log::Any.alert(     :pipeline( 'filter on severity array' ), 'alert severity'     );
+Log::Any.emergency( :pipeline( 'filter on severity array' ), 'emergency severity' );
+
+is $a.logs,
+	['debug severity'],
+	'filter on severity array [debug]';
+is $b.logs,
+	['info severity', 'emergency severity'],
+	'filter on severity array [info, emergency]';
+is $c.logs,
+	['trace severity', 'notice severity', 'warning severity', 'error severity', 'critical severity', 'alert severity' ],
+	'filter on severity array [trace,critical,alert,error,warning,notice]';
 
 # MULTIPLE FILTERS
