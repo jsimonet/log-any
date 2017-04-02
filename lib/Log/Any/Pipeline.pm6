@@ -18,7 +18,7 @@ class Log::Any::Pipeline {
 
 	has @!adapters;
 
-	method add( Log::Any::Adapter $a, Log::Any::Filter :$filter, Log::Any::Formatter :$formatter ) {
+	method add( Log::Any::Adapter $a, Log::Any::Filter :$filter, Log::Any::Formatter :$formatter, :$proxy ) {
 		#note "{now} adding adapter $a.WHAT().^name()";
 		my %elem = adapter => $a;
 
@@ -28,6 +28,10 @@ class Log::Any::Pipeline {
 
 		if $formatter.defined {
 			%elem{'formatter'} = $formatter;
+		}
+
+		if $proxy.defined {
+			%elem{'proxy'} = $proxy;
 		}
 
 		push @!adapters, %elem;
@@ -61,13 +65,54 @@ class Log::Any::Pipeline {
 		my %elem = self!get-next-elem( :$msg, :$severity, :$category );
 		if %elem {
 			# Formatter
-			my $msgToHandle = $msg;
-			$msgToHandle = %elem{'formatter'}.?format( :$dateTime, :$msg, :$category, :$severity );
+			my $msg-formatted = $msg;
+			$msg-formatted = %elem{'formatter'}.?format( :$dateTime, :$msg, :$category, :$severity );
 
 			# Proxies
+			my $proxy-result = $msg-formatted;
+			#my $proxy-result = %elem{'proxy'}.?proxy( :$msg, :$severity, :$category );
+
+			# !!! if msg-formatted contains the date, no message will be identical...
+			if %elem{'proxy'} {
+				$proxy-result = %elem{'proxy'}.?proxy( msg => $msg );
+			}
 
 			# Handling
-			%elem{'adapter'}.handle( $msgToHandle );
+			if $proxy-result ~~ Promise {
+				note "proxy is a promise", $proxy-result;
+				$proxy-result.then( -> $v {
+					say "result of promise : "~$v.result.perl;
+					given $v.result {
+						when Seq {
+							#note $v.result.perl;
+							for $_ -> $m {
+								note "m is $m.perl()";
+								%elem{'adapter'}.handle( $m );
+							}
+						}
+						when Array {
+							note "array";
+							for $_ -> $m {
+								my $msg-formatted = %elem{'formatter'}.?format( msg => $m );
+								dd $msg-formatted;
+								$msg-formatted //= $msg;
+								dd $msg-formatted;
+								%elem{'adapter'}.handle( $msg-formatted );
+							}
+						}
+						when Str {
+							note "str";
+							%elem{'adapter'}.handle( $_ );
+						}
+						default { die "Oops" }
+					}
+				});
+			} elsif $proxy-result ~~ Str {
+				#note "logging $msg-formatted";
+				%elem{'adapter'}.handle( $msg-formatted );
+			} else {
+				die "oops", $proxy-result.WHAT.perl;
+			}
 		}
 	}
 

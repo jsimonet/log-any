@@ -23,12 +23,12 @@ class Log::Any {
 	}
 
 	# Log::Any.add
-	multi method add( Log::Any:U: Log::Any::Adapter $a, Str :$pipeline = '_default', :$filter, :$formatter ) {
-		return self.new.add( $a, :$pipeline, :$filter, :$formatter );
+	multi method add( Log::Any:U: Log::Any::Adapter $a, Str :$pipeline = '_default', :$filter, :$formatter, :$proxy ) {
+		return self.new.add( $a, :$pipeline, :$filter, :$formatter, :$proxy );
 	}
 
 	# Log::Any.new.add
-	multi method add( Log::Any:D: Log::Any::Adapter $a, Str :$pipeline = '_default', :$filter, :$formatter ) {
+	multi method add( Log::Any:D: Log::Any::Adapter $a, Str :$pipeline = '_default', :$filter, :$formatter, :$proxy ) {
 		my Log::Any::Filter $local-filter;
 		my Log::Any::Formatter $local-formatter;
 
@@ -57,7 +57,7 @@ class Log::Any {
 			# note "Adding adapter to pipeline $pipeline";
 			%!pipelines{$pipeline} = Log::Any::Pipeline.new;
 		}
-		%!pipelines{$pipeline}.add( $a, :filter( $local-filter ), :formatter( $local-formatter ) );
+		%!pipelines{$pipeline}.add( $a, :filter( $local-filter ), :formatter( $local-formatter ), :$proxy );
 	}
 
 	proto method log( Log::Any: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {*}
