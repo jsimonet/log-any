@@ -13,7 +13,7 @@ use v6.c;
 
 use Test;
 
-plan 18;
+plan 19;
 
 use Log::Any;
 use Log::Any::Adapter;
@@ -180,3 +180,13 @@ is $c.logs,
 	'filter on severity array [trace,critical,alert,error,warning,notice]';
 
 # MULTIPLE FILTERS
+
+$a .= new;
+Log::Any.add( $a, :pipeline( 'multi filter' ), :filter( [msg => /abc/, category => 'multi', severity => '=error' ] ) );
+
+Log::Any.info( 'zabcd', :pipeline( 'multi filter' ), category => 'multi' );
+Log::Any.error( 'zzzz', :pipeline( 'multi filter' ), category => 'multi' );
+Log::Any.error( 'abc', :pipeline( 'multi filter' ), category => 'solo' );
+Log::Any.error( 'abcd', :pipeline( 'multi filter' ), category => 'multi' );
+
+is $a.logs, ['abcd'], 'multi filters ok';
