@@ -18,6 +18,18 @@ class Log::Any::Pipeline {
 
 	has @!adapters;
 
+	has $.asynchronous = False;
+	has Channel $!channel; # Channel used for asynchronicity
+
+	method TWEAK {
+		if $!asynchronous {
+			$!channel = Channel.new;
+			$!channel.Supply.tap( -> %params {
+				self!dispatch-synchronous( |%params );
+			} );
+		}
+	}
+
 	method add( Log::Any::Adapter $a, Log::Any::Filter :$filter, Log::Any::Formatter :$formatter ) {
 		#note "{now} adding adapter $a.WHAT().^name()";
 		my %elem = adapter => $a;
@@ -55,14 +67,30 @@ class Log::Any::Pipeline {
 		return %next-elem;
 	}
 
+	# TODO: rename dateTime parameter to date-time (consistency var naming)
 	method dispatch( DateTime :$dateTime!, :$msg!, :$severity!, :$category! ) {
-		#note "{now} dispatching $msg, adapter count : @!adapters.elems()";
+		# note "Dispatching $msg, adapter count : @!adapters.elems(), asynchronicity $!asynchronous.perl() at {now}";
 
+		if $!asynchronous {
+			# note "async dispatch";
+			$!channel.send( { :$dateTime, :$msg, :$severity, :$category } );
+		} else {
+			# note "sync dispatch";
+			return self!dispatch-synchronous( :$dateTime, :$msg, :$severity, :$category );
+		}
+	}
+
+	method !dispatch-synchronous( :$dateTime!, :$msg! is copy, :$severity!, :$category! ) {
 		my %elem = self!get-next-elem( :$msg, :$severity, :$category );
 		if %elem {
+			# Escape newlines caracters in message
+			$msg ~~ s:g/ \n /\\n/;
+
 			# Formatter
 			my $msgToHandle = $msg;
-			$msgToHandle = %elem{'formatter'}.?format( :$dateTime, :$msg, :$category, :$severity );
+			if %elem{'formatter'} {
+				$msgToHandle = %elem{'formatter'}.?format( :$dateTime, :$msg, :$category, :$severity );
+			}
 
 			# Proxies
 

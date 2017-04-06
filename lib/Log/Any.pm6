@@ -60,6 +60,18 @@ class Log::Any {
 		%!pipelines{$pipeline}.add( $a, :filter( $local-filter ), :formatter( $local-formatter ) );
 	}
 
+	# Add a pipeline object
+	multi method add( Log::Any:U: Log::Any::Pipeline $p, Str:D :$pipeline = '_default', :$overwrite = False ) {
+		Log::Any.new.add( $p, :$pipeline, :$overwrite );
+	}
+
+	multi method add( Log::Any:D: Log::Any::Pipeline $p, Str:D :$pipeline = '_default', :$overwrite = False ) {
+		if %!pipelines{$pipeline} && ! $overwrite {
+			die "Cannot overwrite existing pipeline";
+		}
+		%!pipelines{$pipeline} = $p;
+	}
+
 	proto method log( Log::Any: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {*}
 
 	multi method log( Log::Any:U: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {
@@ -91,9 +103,6 @@ Dies if severity is unknown.
 			}
 			$category //= '';
 		}
-
-		# Escape newlines caracters in message
-		$msg ~~ s:g/ \n /\\n/;
 
 		# Capture the date as soon as possible
 		my $dateTime = DateTime.new( now );
