@@ -84,7 +84,7 @@ class Log::Any {
 =head3 Exceptions
 Dies if severity is unknown.
 =end pod
-	multi method log(Log::Any:D: :$msg! is copy, :$severity!, :$category is copy, :$pipeline is copy --> Bool ) {
+	multi method log(Log::Any:D: :$msg!, :$severity!, :$category is copy, :$pipeline is copy --> Bool ) {
 		# Check if the severity is handled
 		die "Unknown severity $severity" unless %!severities{$severity};
 
