@@ -361,3 +361,17 @@ Wow an error in an infinite loop...
 * Log::Any : previous message reapeated n times during last 1s.
 ```
 
+## Load Log configuration from a file
+
+- YAML, JSON, XML, ?
+- watch a file to detect changes
+- in the standard distribution, or in a "plugin" ?
+
+With Config::Any :
+```perl6
+use Config::Any;
+use Log::Any;
+
+Config::Any.load-from-file( :name('/path/to/file.conf') ).on-change( -> $config { Log::Any.load-from( $config ) } );
+```
+
