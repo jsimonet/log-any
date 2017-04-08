@@ -13,7 +13,7 @@ use v6.c;
 
 use Test;
 
-plan 19;
+plan 20;
 
 use Log::Any;
 use Log::Any::Adapter;
@@ -178,6 +178,24 @@ is $b.logs,
 is $c.logs,
 	['trace severity', 'notice severity', 'warning severity', 'error severity', 'critical severity', 'alert severity' ],
 	'filter on severity array [trace,critical,alert,error,warning,notice]';
+
+# BARRIER FILTERS
+
+$a .= new;
+Log::Any.add( :filter( [severity => '>info'] ), :pipeline( 'filter barrier' ) );
+Log::Any.add( $a, :pipeline( 'filter barrier' ) );
+
+Log::Any.trace(     :pipeline( 'filter barrier' ), 'trace severity'     );
+Log::Any.debug(     :pipeline( 'filter barrier' ), 'debug severity'     );
+Log::Any.info(      :pipeline( 'filter barrier' ), 'info severity'      );
+Log::Any.notice(    :pipeline( 'filter barrier' ), 'notice severity'    );
+Log::Any.warning(   :pipeline( 'filter barrier' ), 'warning severity'   );
+Log::Any.error(     :pipeline( 'filter barrier' ), 'error severity'     );
+Log::Any.critical(  :pipeline( 'filter barrier' ), 'critical severity'  );
+Log::Any.alert(     :pipeline( 'filter barrier' ), 'alert severity'     );
+Log::Any.emergency( :pipeline( 'filter barrier' ), 'emergency severity' );
+
+is $a.logs, ['trace severity', 'debug severity', 'info severity'], 'filter barrier blocks severity>info';
 
 # MULTIPLE FILTERS
 
