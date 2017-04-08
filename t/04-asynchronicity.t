@@ -26,10 +26,10 @@ dies-ok
 	'Cannot add the pipeline because default one already exists';
 lives-ok
 	{ Log::Any.add( $pipeline, :overwrite ) },
-	'Cannot add the pipeline because default one already exists';
+	'Add the "default" pipeline with :overwrite because it already exists';
 lives-ok
 	{ Log::Any.add( $pipeline, :pipeline('async') ) },
-	'Cannot add the pipeline because default one already exists';
+	'Add the new "async" pipeline.';
 
 my $a = AdapterDebug.new;
 Log::Any.add( $a, :pipeline('async') );
