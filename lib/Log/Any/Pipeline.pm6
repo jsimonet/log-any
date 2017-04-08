@@ -67,20 +67,19 @@ class Log::Any::Pipeline {
 		return %next-elem;
 	}
 
-	# TODO: rename dateTime parameter to date-time (consistency var naming)
-	method dispatch( DateTime :$dateTime!, :$msg!, :$severity!, :$category! ) {
+	method dispatch( DateTime :$date-time!, :$msg!, :$severity!, :$category! ) {
 		# note "Dispatching $msg, adapter count : @!adapters.elems(), asynchronicity $!asynchronous.perl() at {now}";
 
 		if $!asynchronous {
 			# note "async dispatch";
-			$!channel.send( { :$dateTime, :$msg, :$severity, :$category } );
+			$!channel.send( { :$date-time, :$msg, :$severity, :$category } );
 		} else {
 			# note "sync dispatch";
-			return self!dispatch-synchronous( :$dateTime, :$msg, :$severity, :$category );
+			return self!dispatch-synchronous( :$date-time, :$msg, :$severity, :$category );
 		}
 	}
 
-	method !dispatch-synchronous( :$dateTime!, :$msg! is copy, :$severity!, :$category! ) {
+	method !dispatch-synchronous( :$date-time!, :$msg! is copy, :$severity!, :$category! ) {
 		my %elem = self!get-next-elem( :$msg, :$severity, :$category );
 		if %elem {
 			# Escape newlines caracters in message
@@ -89,7 +88,7 @@ class Log::Any::Pipeline {
 			# Formatter
 			my $msgToHandle = $msg;
 			if %elem{'formatter'} {
-				$msgToHandle = %elem{'formatter'}.format( :$dateTime, :$msg, :$category, :$severity );
+				$msgToHandle = %elem{'formatter'}.format( :$date-time, :$msg, :$category, :$severity );
 			}
 
 			# Proxies
