@@ -83,6 +83,18 @@ class Log::Any {
 		%!pipelines{$pipeline}.add( Log::Any::Adapter::BlackHole.new, :filter( $local-filter ) );
 	}
 
+	# Add a pipeline object
+	multi method add( Log::Any:U: Log::Any::Pipeline $p, Str:D :$pipeline = '_default', :$overwrite = False ) {
+		Log::Any.new.add( $p, :$pipeline, :$overwrite );
+	}
+
+	multi method add( Log::Any:D: Log::Any::Pipeline $p, Str:D :$pipeline = '_default', :$overwrite = False ) {
+		if %!pipelines{$pipeline} && ! $overwrite {
+			die "Cannot overwrite existing pipeline";
+		}
+		%!pipelines{$pipeline} = $p;
+	}
+
 	proto method log( Log::Any: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {*}
 
 	multi method log( Log::Any:U: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {
@@ -95,7 +107,7 @@ class Log::Any {
 =head3 Exceptions
 Dies if severity is unknown.
 =end pod
-	multi method log(Log::Any:D: :$msg! is copy, :$severity!, :$category is copy, :$pipeline is copy --> Bool ) {
+	multi method log(Log::Any:D: :$msg!, :$severity!, :$category is copy, :$pipeline is copy --> Bool ) {
 		# Check if the severity is handled
 		die "Unknown severity $severity" unless %!severities{$severity};
 
@@ -114,9 +126,6 @@ Dies if severity is unknown.
 			}
 			$category //= '';
 		}
-
-		# Escape newlines caracters in message
-		$msg ~~ s:g/ \n /\\n/;
 
 		# Capture the date as soon as possible
 		my $dateTime = DateTime.new( now );
