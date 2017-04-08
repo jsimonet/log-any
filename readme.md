@@ -216,8 +216,6 @@ Log::Any.add( Some::Adapter.new, :filter( MyOwnFilter.new ) );
 
 ## Filters acting like barrier
 
-/!\ Work in progress /!\
-
 A filter generally authorize a log to be sent to an Adapter. If there is no defined Adapter, the log will end up in a black hole.
 
 ```perl6
