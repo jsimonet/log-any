@@ -9,27 +9,16 @@ This test file tests if basic methods can be called, if the formatter is working
 
 use Test;
 
-plan 21;
+plan 31;
 
 use Log::Any;
 
 # Can call some methods
-ok Log::Any.error( 'an error' ),      'Log::Any.error()';
-ok Log::Any.warning( 'a warning' ),   'Log::Any.warning()';
-ok Log::Any.info( 'an information' ), 'Log::Any.info()';
-ok Log::Any.notice( 'a notice' ),     'Log::Any.notice()';
-ok Log::Any.debug( 'a debug' ),       'Log::Any.debug()';
-ok Log::Any.trace( 'a trace' ),       'Log::Any.trace()';
-
 my $l = Log::Any.new;
-ok $l.emergency( 'an emergency' ), '$l.emergency()';
-ok $l.alert( 'an alert' ),         '$l.alert()';
-ok $l.critical( 'a critic' ),      '$l.critical()';
-ok $l.warning( 'a warning' ),      '$l.warning()';
-ok $l.info( 'an information' ),    '$l.info()';
-ok $l.notice( 'a notice' ),        '$l.notice()';
-ok $l.debug( 'a debug' ),          '$l.debug()';
-ok $l.trace( 'a trace' ),          '$l.trace()';
+for keys %Log::Any::Definitions::SEVERITIES -> $severity {
+	can-ok Log::Any, $severity;
+	can-ok $l,       $severity;
+}
 
 dies-ok { $l.log( :msg('msg'), :severity('unknownSeverity') ) }, 'unknown severity dies';
 dies-ok { $l.log( :msg('msg'), :severity('') ) }, 'empty severity dies';
@@ -43,6 +32,13 @@ class AdapterDebug is Log::Any::Adapter {
 		push @!logs, $msg;
 	}
 }
+
+use-ok 'Log::Any::Adapter';
+can-ok Log::Any::Adapter, 'handle';
+use-ok 'Log::Any::Filter';
+can-ok Log::Any::Filter, 'filter';
+use-ok 'Log::Any::Formatter';
+can-ok Log::Any::Formatter, 'format';
 
 # Default pipeline
 my $a = AdapterDebug.new;

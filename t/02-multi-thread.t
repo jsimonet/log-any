@@ -1,6 +1,11 @@
 use v6.c;
 use Test;
 
+=begin pod
+=head1 Multi-thread test file
+This test file tests if logging from multple threads correctly uses the Singleton instance.
+=end pod
+
 plan 2;
 
 class ToLog {
