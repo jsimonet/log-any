@@ -60,6 +60,29 @@ class Log::Any {
 		%!pipelines{$pipeline}.add( $a, :filter( $local-filter ), :formatter( $local-formatter ) );
 	}
 
+	multi method add( Log::Any:U:  Str :$pipeline = '_default', :$filter ) {
+		return self.new.add( :$pipeline, :$filter );
+	}
+
+	multi method add( Log::Any:D:  Str :$pipeline = '_default', :$filter ) {
+		my Log::Any::Filter $local-filter;
+		given $filter {
+			when Array {
+				$local-filter = Log::Any::FilterBuiltIN.new( checks => @$filter );
+			}
+			when Log::Any::Filter {
+				$local-filter = $filter;
+			}
+		}
+
+		unless %!pipelines{$pipeline} {
+			# note "Adding adapter to pipeline $pipeline";
+			%!pipelines{$pipeline} = Log::Any::Pipeline.new;
+		}
+
+		%!pipelines{$pipeline}.add( Log::Any::Adapter::BlackHole.new, :filter( $local-filter ) );
+	}
+
 	proto method log( Log::Any: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {*}
 
 	multi method log( Log::Any:U: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default' --> Bool ) {

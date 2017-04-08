@@ -17,3 +17,9 @@ class Log::Any::Adapter {
 	}
 
 }
+
+class Log::Any::Adapter::BlackHole is Log::Any::Adapter {
+	method handle( $msg ) {
+		# Do nothing with log
+	}
+}

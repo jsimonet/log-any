@@ -45,7 +45,7 @@ class Log::Any::Pipeline {
 		for @!adapters -> %elem {
 			# Filter : check if the adapter meets the requirements
 			with %elem{'filter'} {
-				next unless  %elem{'filter'}.filter( :$msg, :$severity, :$category );
+				next unless %elem{'filter'}.filter( :$msg, :$severity, :$category );
 			}
 			# Without filter, it's ok
 			%next-elem = %elem;
@@ -62,7 +62,9 @@ class Log::Any::Pipeline {
 		if %elem {
 			# Formatter
 			my $msgToHandle = $msg;
-			$msgToHandle = %elem{'formatter'}.?format( :$dateTime, :$msg, :$category, :$severity );
+			if %elem{'formatter'} {
+				$msgToHandle = %elem{'formatter'}.format( :$dateTime, :$msg, :$category, :$severity );
+			}
 
 			# Proxies
 

@@ -218,11 +218,11 @@ Log::Any.add( Some::Adapter.new, :filter( MyOwnFilter.new ) );
 
 /!\ Work in progress /!\
 
+A filter generally authorize a log to be sent to an Adapter. If there is no defined Adapter, the log will end up in a black hole.
+
 ```perl6
-Log::Any.add( Adapter.new );
 Log::Any.add( :filter( [ severity => '>warning' ] );
-# Only logs with severity above _warning_ continues through the pipeline.
-Log::Any.add( Adapter2.new );
+# Logs with severity above "warning" does not continue through the pipeline
 ```
 
 # PIPELINES
