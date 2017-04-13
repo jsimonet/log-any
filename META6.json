@@ -12,6 +12,7 @@
 		"Log::Any" : "lib/Log/Any.pm6",
 		"Log::Any::Pipeline" : "lib/Log/Any/Pipeline.pm6",
 		"Log::Any::Adapter" : "lib/Log/Any/Adapter.pm6",
+		"Log::Any::Adapter::BlackHole" : "lib/Log/Any/Adapter.pm6",
 		"Log::Any::Adapter::File" : "lib/Log/Any/Adapter/File.pm6",
 		"Log::Any::Adapter::Stdout" : "lib/Log/Any/Adapter/Stdout.pm6",
 		"Log::Any::Adapter::Stderr" : "lib/Log/Any/Adapter/Stderr.pm6",

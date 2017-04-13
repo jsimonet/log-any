@@ -67,7 +67,7 @@ A few examples:
 
 - Log::Any::Adapter::File
 - Log::Any::Adapter::Database::SQL
-- Log::Any::Adapter::STDOUT
+- Log::Any::Adapter::Stdout
 
 ## Provided adapters
 
@@ -106,14 +106,14 @@ Formatters will use the attributes of a Log.
 |\\m   |Message      |Payload, explains what is going on           | none                     |
 
 ```perl6
-use Log::Any::Adapter::STDOUT( :formatter( '\d \c \m' ) );
+use Log::Any::Adapter::Stdout( :formatter( '\d \c \m' ) );
 ```
 
 You can of course use variables in the formatter, but since _\\_ is already used in Perl6 strings interpolation, you have to escape them.
 
 ```perl6
 my $prefix = 'myapp ';
-use Log::Any::Adapter::STDOUT( :format( "$prefix \\d \\c \\s \\m" ) );
+use Log::Any::Adapter::Stdout( :format( "$prefix \\d \\c \\s \\m" ) );
 ```
 
 A formatter can be more complex than the default one by extending the class _Formatter_.
