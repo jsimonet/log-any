@@ -16,6 +16,7 @@
 		"Log::Any::Adapter::File" : "lib/Log/Any/Adapter/File.pm6",
 		"Log::Any::Adapter::Stdout" : "lib/Log/Any/Adapter/Stdout.pm6",
 		"Log::Any::Adapter::Stderr" : "lib/Log/Any/Adapter/Stderr.pm6",
+		"Log::Any::Definitions" : "lib/Log/Any/Definitions.pm6",
 		"Log::Any::Filter" : "lib/Log/Any/Filter.pm6",
 		"Log::Any::FilterBuiltIN" : "lib/Log/Any/Filter.pm6",
 		"Log::Any::Formatter" : "lib/Log/Any/Filter.pm6",
