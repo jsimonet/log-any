@@ -141,7 +141,11 @@ Dies if severity is unknown.
 
 
 	# Check if the filter will be accepted with the specified attributes
-	method will-log( :$severity!, :$category, :$pipeline = '_default' ) returns Bool {
+	multi method will-log( Log::Any:U: :$severity!, :$category is copy, :$pipeline = '_default' ) returns Bool {
+		return Log::Any.new.will-log( :$severity, :$category, :$pipeline );
+	}
+
+	multi method will-log( Log::Any:D: :$severity!, :$category is copy, :$pipeline = '_default' ) returns Bool {
 
 		# Check if the severity is handled
 		die "Unknown severity $severity" unless %!severities{$severity};
