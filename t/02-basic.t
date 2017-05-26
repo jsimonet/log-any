@@ -84,4 +84,4 @@ Log::Any.add( :pipeline('continue-on-match'), $a, :continue-on-match );
 Log::Any.add( :pipeline('continue-on-match'), $b );
 Log::Any.info( :pipeline('continue-on-match'), 'info should log twice' );
 
-ok $a.logs[*-1] === $b.logs[*-1] === 'info should log twice';
+ok $a.logs[*-1] === $b.logs[*-1] === 'info should log twice', 'continue on match';
