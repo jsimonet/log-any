@@ -9,7 +9,7 @@ This test file tests if basic methods can be called, if the formatter is working
 
 use Test;
 
-plan 33;
+plan 34;
 
 use Log::Any;
 
@@ -88,9 +88,9 @@ ok $a.logs[*-1] === $b.logs[*-1] === 'info should log twice', 'continue on match
 
 # Does not compute caller
 class Tolog {
-	method log {
+	method log( :$pipeline ) {
 		use Log::Any;
-		Log::Any.info( 'msg from Tolog', :pipeline<caller> );
+		Log::Any.info( 'msg from Tolog', :pipeline($pipeline) );
 	}
 }
 
@@ -98,5 +98,13 @@ Log::Any.add( :pipeline<caller>, Log::Any::Pipeline.new( :compute-caller( False 
 $a.logs = [];
 Log::Any.add( :pipeline<caller>, $a, :formatter('\c \m') );
 
-Tolog.log;
+Tolog.log( :pipeline<caller> );
+is $a.logs[ *-1 ], ' msg from Tolog';
+
+# Does not compute datetime
+Log::Any.add( :pipeline<no-datetime>, Log::Any::Pipeline.new( :compute-datetime( False ) ) );
+$a.logs = [];
+Log::Any.add( :pipeline<no-datetime>, $a, :formatter('\d \m') );
+
+Tolog.log( :pipeline<no-datetime> );
 is $a.logs[ *-1 ], ' msg from Tolog';

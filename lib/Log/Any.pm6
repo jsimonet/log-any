@@ -111,15 +111,11 @@ Dies if severity is unknown.
 		# Check if the severity is handled
 		die "Unknown severity $severity" unless %!severities{$severity};
 
-
-		# Capture the date as soon as possible
-		my $date-time = DateTime.new( now );
-
 		# Use the specified pipeline, or the default one
 		$pipeline //= '_default';
 		# note "Logging using pipeline $pipeline";
 		my $pipeline-instance = %!pipelines{ $pipeline } // %!pipelines{'_default'};
-		$pipeline-instance.dispatch( :$date-time, :$msg, :$severity, :$category );
+		$pipeline-instance.dispatch( :$msg, :$severity, :$category );
 
 		return True;
 	}

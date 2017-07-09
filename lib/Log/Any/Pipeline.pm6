@@ -22,6 +22,7 @@ class Log::Any::Pipeline {
 	has Channel $!channel; # Channel used for asynchronicity
 
 	has Bool $.compute-caller   = True;
+	has Bool $.compute-datetime = True;
 
 	method TWEAK {
 		if $!asynchronous {
@@ -70,8 +71,13 @@ class Log::Any::Pipeline {
 
 	}
 
-	method dispatch( DateTime :$date-time!, :$msg!, :$severity!, :$category! is copy ) {
+	method dispatch( :$msg!, :$severity!, :$category! is copy ) {
 		# note "Dispatching $msg, adapter count : @!adapters.elems(), asynchronicity $!asynchronous.perl() at {now}";
+
+		# Capture the date and time
+		my $date-time = $!compute-datetime
+			?? DateTime.now
+			!! '';
 
 		# Search the package name of caller if $category is not set
 		# Can be null (Any) (no caller package)
