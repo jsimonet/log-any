@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/jsimonet/log-any.svg?branch=master)](https://travis-ci.org/jsimonet/log-any)
-
+[![Build status](https://ci.appveyor.com/api/projects/status/rjhdnidc2hwnmd0p/branch/master?svg=true)](https://ci.appveyor.com/project/jsimonet/log-any/branch/master)
 # NAME
 
 Log::Any
