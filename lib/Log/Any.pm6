@@ -111,21 +111,6 @@ Dies if severity is unknown.
 		# Check if the severity is handled
 		die "Unknown severity $severity" unless %!severities{$severity};
 
-		# Search the package name of caller if $category is not set
-		# Can be null (Any) (no caller package)
-		unless $category {
-			# Search the package name of the caller
-			for Backtrace.new -> $b {
-				if $b.code ~~ Routine {
-					if $b.code.package.^name ~~ /^ 'Log::Any' | ^ 'Backtrace' / {
-						next;
-					}
-					$category = $b.code.package.^name;
-					last;
-				}
-			}
-			$category //= '';
-		}
 
 		# Capture the date as soon as possible
 		my $date-time = DateTime.new( now );

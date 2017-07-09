@@ -21,6 +21,8 @@ class Log::Any::Pipeline {
 	has $.asynchronous = False;
 	has Channel $!channel; # Channel used for asynchronicity
 
+	has Bool $.compute-caller   = True;
+
 	method TWEAK {
 		if $!asynchronous {
 			$!channel = Channel.new;
@@ -70,6 +72,24 @@ class Log::Any::Pipeline {
 
 	method dispatch( DateTime :$date-time!, :$msg!, :$severity!, :$category! ) {
 		# note "Dispatching $msg, adapter count : @!adapters.elems(), asynchronicity $!asynchronous.perl() at {now}";
+
+		# Search the package name of caller if $category is not set
+		# Can be null (Any) (no caller package)
+		unless $category {
+			if $!compute-caller {
+				# Search the package name of the caller
+				for Backtrace.new -> $b {
+					if $b.code ~~ Routine {
+						if $b.code.package.^name ~~ /^ 'Log::Any' | ^ 'Backtrace' / {
+							next;
+						}
+						$category = $b.code.package.^name;
+						last;
+					}
+				}
+			}
+			$category //= '';
+		}
 
 		if $!asynchronous {
 			# note "async dispatch";
