@@ -17,10 +17,9 @@ use Log::Any::Formatter;
 class Log::Any::Pipeline {
 
 	has @!adapters;
-
-	has $.asynchronous = False;
 	has Channel $!channel; # Channel used for asynchronicity
 
+	has Bool $.asynchronous     = False;
 	has Bool $.compute-caller   = True;
 	has Bool $.compute-datetime = True;
 
