@@ -70,7 +70,7 @@ class Log::Any::Pipeline {
 
 	}
 
-	method dispatch( DateTime :$date-time!, :$msg!, :$severity!, :$category! ) {
+	method dispatch( DateTime :$date-time!, :$msg!, :$severity!, :$category! is copy ) {
 		# note "Dispatching $msg, adapter count : @!adapters.elems(), asynchronicity $!asynchronous.perl() at {now}";
 
 		# Search the package name of caller if $category is not set

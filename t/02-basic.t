@@ -9,7 +9,7 @@ This test file tests if basic methods can be called, if the formatter is working
 
 use Test;
 
-plan 32;
+plan 33;
 
 use Log::Any;
 
@@ -85,3 +85,18 @@ Log::Any.add( :pipeline('continue-on-match'), $b );
 Log::Any.info( :pipeline('continue-on-match'), 'info should log twice' );
 
 ok $a.logs[*-1] === $b.logs[*-1] === 'info should log twice', 'continue on match';
+
+# Does not compute caller
+class Tolog {
+	method log {
+		use Log::Any;
+		Log::Any.info( 'msg from Tolog', :pipeline<caller> );
+	}
+}
+
+Log::Any.add( :pipeline<caller>, Log::Any::Pipeline.new( :compute-caller( False ) ) );
+$a.logs = [];
+Log::Any.add( :pipeline<caller>, $a, :formatter('\c \m') );
+
+Tolog.log;
+is $a.logs[ *-1 ], ' msg from Tolog';
