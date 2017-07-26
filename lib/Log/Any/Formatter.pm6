@@ -17,7 +17,7 @@ class Log::Any::FormatterBuiltIN is Log::Any::Formatter {
 		$format.subst-mutate( '\m', $msg, :g );
 
 		for %extra-fields.kv -> $k, $v {
-			$format.subst-mutate( '\t{'~$k~'}', $v, :g );
+			$format.subst-mutate( '\e{'~$k~'}', $v, :g );
 		}
 
 		return $format;
