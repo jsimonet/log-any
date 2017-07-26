@@ -95,10 +95,10 @@ class Log::Any {
 		%!pipelines{$pipeline} = $p;
 	}
 
-	proto method log( Log::Any: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default', :%tags --> Bool ) {*}
+	proto method log( Log::Any: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default', :%extra-fields --> Bool ) {*}
 
-	multi method log( Log::Any:U: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default', :%tags --> Bool ) {
-		return Log::Any.new.log( :$msg, :$severity, :$category, :$pipeline, :%tags);
+	multi method log( Log::Any:U: :$msg!, :$severity!, :$category is copy, :$pipeline = '_default', :%extra-fields --> Bool ) {
+		return Log::Any.new.log( :$msg, :$severity, :$category, :$pipeline, :%extra-fields);
 	}
 
 =begin pod
@@ -107,7 +107,7 @@ class Log::Any {
 =head3 Exceptions
 Dies if severity is unknown.
 =end pod
-	multi method log(Log::Any:D: :$msg!, :$severity!, :$category is copy, :$pipeline is copy, :%tags --> Bool ) {
+	multi method log(Log::Any:D: :$msg!, :$severity!, :$category is copy, :$pipeline is copy, :%extra-fields --> Bool ) {
 		# Check if the severity is handled
 		die "Unknown severity $severity" unless %!severities{$severity};
 
@@ -134,18 +134,18 @@ Dies if severity is unknown.
 		$pipeline //= '_default';
 		# note "Logging using pipeline $pipeline";
 		my $pipeline-instance = %!pipelines{ $pipeline } // %!pipelines{'_default'};
-		$pipeline-instance.dispatch( :$date-time, :$msg, :$severity, :$category, :%tags, );
+		$pipeline-instance.dispatch( :$date-time, :$msg, :$severity, :$category, :%extra-fields, );
 
 		return True;
 	}
 
 
 	# Check if the filter will be accepted with the specified attributes
-	multi method will-log( Log::Any:U: :$severity!, :$category is copy, :$pipeline = '_default', :%tags ) returns Bool {
+	multi method will-log( Log::Any:U: :$severity!, :$category is copy, :$pipeline = '_default', :%extra-fields ) returns Bool {
 		return Log::Any.new.will-log( :$severity, :$category, :$pipeline );
 	}
 
-	multi method will-log( Log::Any:D: :$severity!, :$category is copy, :$pipeline = '_default', :%tags ) returns Bool {
+	multi method will-log( Log::Any:D: :$severity!, :$category is copy, :$pipeline = '_default', :%extra-fields ) returns Bool {
 
 		# Check if the severity is handled
 		die "Unknown severity $severity" unless %!severities{$severity};
@@ -171,81 +171,81 @@ Dies if severity is unknown.
 		# note "Logging using pipeline $pipeline";
 		my $pipeline-instance = %!pipelines{ $pipeline } // %!pipelines{'_default'};
 
-		return $pipeline-instance.will-dispatch( :$severity, :$category, :%tags );
+		return $pipeline-instance.will-dispatch( :$severity, :$category, :%extra-fields );
 	}
 
 
-	method emergency( $msg, :$category, :$pipeline, :%tags --> Bool ) {
-		self.log( :$msg, :severity( 'emergency' ), :$category, :$pipeline, :%tags );
+	method emergency( $msg, :$category, :$pipeline, :%extra-fields --> Bool ) {
+		self.log( :$msg, :severity( 'emergency' ), :$category, :$pipeline, :%extra-fields );
 	}
 
-	method alert( $msg, :$category, :$pipeline, :%tags --> Bool ) {
-		self.log( :$msg, :severity( 'alert' ), :$category, :$pipeline, :%tags );
+	method alert( $msg, :$category, :$pipeline, :%extra-fields --> Bool ) {
+		self.log( :$msg, :severity( 'alert' ), :$category, :$pipeline, :%extra-fields );
 	}
 
-	method critical( $msg, :$category, :$pipeline, :%tags --> Bool ) {
-		self.log( :$msg, :severity( 'critical' ), :$category, :$pipeline, :%tags );
+	method critical( $msg, :$category, :$pipeline, :%extra-fields --> Bool ) {
+		self.log( :$msg, :severity( 'critical' ), :$category, :$pipeline, :%extra-fields );
 	}
 
-	method error( $msg, :$category, :$pipeline, :%tags --> Bool ) {
-		self.log( :$msg, :severity( 'error' ), :$category, :$pipeline, :%tags );
+	method error( $msg, :$category, :$pipeline, :%extra-fields --> Bool ) {
+		self.log( :$msg, :severity( 'error' ), :$category, :$pipeline, :%extra-fields );
 	}
 
-	method warning( $msg, :$category, :$pipeline, :%tags --> Bool ) {
-		self.log( :$msg, :severity( 'warning' ), :$category, :$pipeline, :%tags );
+	method warning( $msg, :$category, :$pipeline, :%extra-fields --> Bool ) {
+		self.log( :$msg, :severity( 'warning' ), :$category, :$pipeline, :%extra-fields );
 	}
 
-	method info( $msg, :$category, :%tags, :$pipeline, :%tags --> Bool ) {
-		self.log( :$msg, :severity( 'info' ), :$category, :%tags, :$pipeline, :%tags );
+	method info( $msg, :$category, :$pipeline, :%extra-fields --> Bool ) {
+		self.log( :$msg, :severity( 'info' ), :$category, :%extra-fields, :$pipeline, :%extra-fields );
 	}
 
-	method notice( $msg, :$category, :$pipeline, :%tags --> Bool ) {
-		self.log( :$msg, :severity( 'notice' ), :$category, :$pipeline, :%tags );
+	method notice( $msg, :$category, :$pipeline, :%extra-fields --> Bool ) {
+		self.log( :$msg, :severity( 'notice' ), :$category, :$pipeline, :%extra-fields );
 	}
 
-	method debug( $msg, :$category, :$pipeline, :%tags --> Bool ) {
-		self.log( :$msg, :severity( 'debug' ), :$category, :$pipeline, :%tags );
+	method debug( $msg, :$category, :$pipeline, :%extra-fields --> Bool ) {
+		self.log( :$msg, :severity( 'debug' ), :$category, :$pipeline, :%extra-fields );
 	}
 
-	method trace( $msg, :$category, :$pipeline, :%tags --> Bool ) {
-		self.log( :$msg, :severity( 'trace' ), :$category, :$pipeline, :%tags );
+	method trace( $msg, :$category, :$pipeline, :%extra-fields --> Bool ) {
+		self.log( :$msg, :severity( 'trace' ), :$category, :$pipeline, :%extra-fields );
 	}
 
 
-	method will-emergency( :$category, :$pipeline = '_default', :%tags ) returns Bool {
-		return self.will-log( :severity('emergency'), :$category, :$pipeline, :%tags );
+	method will-emergency( :$category, :$pipeline = '_default', :%extra-fields ) returns Bool {
+		return self.will-log( :severity('emergency'), :$category, :$pipeline, :%extra-fields );
 	}
 
-	method will-alert( :$category, :$pipeline = '_default', :%tags ) returns Bool {
-		return self.will-log( :severity('alert'), :$category, :$pipeline, :%tags );
+	method will-alert( :$category, :$pipeline = '_default', :%extra-fields ) returns Bool {
+		return self.will-log( :severity('alert'), :$category, :$pipeline, :%extra-fields );
 	}
 
-	method will-critical( :$category, :$pipeline = '_default', :%tags ) returns Bool {
-		return self.will-log( :severity('critical'), :$category, :$pipeline, :%tags );
+	method will-critical( :$category, :$pipeline = '_default', :%extra-fields ) returns Bool {
+		return self.will-log( :severity('critical'), :$category, :$pipeline, :%extra-fields );
 	}
 
-	method will-error( :$category, :$pipeline = '_default', :%tags ) returns Bool {
-		return self.will-log( :severity('error'), :$category, :$pipeline, :%tags );
+	method will-error( :$category, :$pipeline = '_default', :%extra-fields ) returns Bool {
+		return self.will-log( :severity('error'), :$category, :$pipeline, :%extra-fields );
 	}
 
-	method will-warning( :$category, :$pipeline = '_default', :%tags ) returns Bool {
-		return self.will-log( :severity('warning'), :$category, :$pipeline, :%tags );
+	method will-warning( :$category, :$pipeline = '_default', :%extra-fields ) returns Bool {
+		return self.will-log( :severity('warning'), :$category, :$pipeline, :%extra-fields );
 	}
 
-	method will-info( :$category, :$pipeline = '_default', :%tags ) returns Bool {
-		return self.will-log( :severity('info'), :$category, :$pipeline, :%tags );
+	method will-info( :$category, :$pipeline = '_default', :%extra-fields ) returns Bool {
+		return self.will-log( :severity('info'), :$category, :$pipeline, :%extra-fields );
 	}
 
-	method will-notice( :$category, :$pipeline = '_default', :%tags ) returns Bool {
-		return self.will-log( :severity('notice'), :$category, :$pipeline, :%tags );
+	method will-notice( :$category, :$pipeline = '_default', :%extra-fields ) returns Bool {
+		return self.will-log( :severity('notice'), :$category, :$pipeline, :%extra-fields );
 	}
 
-	method will-debug( :$category, :$pipeline = '_default', :%tags ) returns Bool {
-		return self.will-log( :severity('debug'), :$category, :$pipeline, :%tags );
+	method will-debug( :$category, :$pipeline = '_default', :%extra-fields ) returns Bool {
+		return self.will-log( :severity('debug'), :$category, :$pipeline, :%extra-fields );
 	}
 
-	method will-trace( :$category, :$pipeline = '_default', :%tags ) returns Bool {
-		return self.will-log( :severity('trace'), :$category, :$pipeline, :%tags );
+	method will-trace( :$category, :$pipeline = '_default', :%extra-fields ) returns Bool {
+		return self.will-log( :severity('trace'), :$category, :$pipeline, :%extra-fields );
 	}
 
 	# Dump Log::Any pipelines

@@ -1,13 +1,13 @@
 use v6.c;
 
 class Log::Any::Formatter {
-	proto method format( :$date-time, :$msg!, :$category!, :$severity!, :%tags ) { ... }
+	proto method format( :$date-time, :$msg!, :$category!, :$severity!, :%extra-fields ) { ... }
 }
 
 class Log::Any::FormatterBuiltIN is Log::Any::Formatter {
 	has Str $.format = '\m';
 
-	method format( :$date-time, :$msg!, :$category!, :$severity!, :%tags ) {
+	method format( :$date-time, :$msg!, :$category!, :$severity!, :%extra-fields ) {
 		my $format = $!format;
 		# Replace every tag by his value
 
@@ -16,7 +16,7 @@ class Log::Any::FormatterBuiltIN is Log::Any::Formatter {
 		$format.subst-mutate( '\c', $category, :g );
 		$format.subst-mutate( '\m', $msg, :g );
 
-		for %tags.kv -> $k, $v {
+		for %extra-fields.kv -> $k, $v {
 			$format.subst-mutate( '\t{'~$k~'}', $v, :g );
 		}
 
