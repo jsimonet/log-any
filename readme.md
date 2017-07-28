@@ -218,7 +218,7 @@ If a more complex filtering is necessary, a class inheriting Log::Any::Filter ca
 ```perl6
 # Use home-made filters
 class MyOwnFilter is Log::Any::Filter {
-	method filter( :$msg, :$severity, :$category ) returns Bool {
+	method filter( :$msg, :$severity, :$category, :%extra-fields ) returns Bool {
 		# Write some complicated tests
 		return True;
 	}
