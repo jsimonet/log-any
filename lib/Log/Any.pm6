@@ -249,8 +249,11 @@ Dies if severity is unknown.
 	}
 
 	# Dump Log::Any pipelines
-	method gist {
+	multi method gist( Log::Any:D: ) {
 		return 'Log::Any.new(pipelines => ' ~ %!pipelines.gist ~ ', severities => ' ~ %!severities.gist ~ ')';
 	}
 
+	multi method gist( Log::Any:U: ) {
+		return Log::Any.new.gist;
+	}
 }
