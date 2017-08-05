@@ -49,7 +49,7 @@ class Log::Any {
 				$local-formatter = $formatter;
 			}
 			default {
-				$local-formatter = Log::Any::FormatterBuiltIN.new;
+				die 'Unable to use formatter ' ~ $formatter;
 			}
 		}
 
