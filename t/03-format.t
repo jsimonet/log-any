@@ -18,7 +18,7 @@ class AdapterDebug is Log::Any::Adapter {
 my $a = AdapterDebug.new;
 
 dies-ok { Log::Any.add( $a, :formatter( 42 ) ) }, 'Cannot use an integer as a formatter.';
-dies-ok { Log::Any.add( $a, :formatter( ::('foo'){} ) ) }, 'Cannot use a class not inheriting Log::Any::Formatter.';
+dies-ok { Log::Any.add( $a, :formatter( class Foo {} ) ) }, 'Cannot use a class not inheriting Log::Any::Formatter.';
 
 # Formatter test
 # test-2 pipeline
