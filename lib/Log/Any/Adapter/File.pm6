@@ -6,7 +6,7 @@ class Log::Any::Adapter::File is Log::Any::Adapter {
 	has IO::Handle $!fh;
 
 	method BUILD( Str:D :$path ) {
-		$!fh = open $path, :a;
+		$!fh = open $path, :a, :0out-buffer;
 	}
 
 	method handle( $msg ) {
