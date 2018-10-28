@@ -131,7 +131,7 @@ Dies if severity is unknown.
 		}
 
 		# Capture the date as soon as possible
-		my $date-time = DateTime.new( now );
+		my $date-time = DateTime.now;
 
 		# Use the specified pipeline, or the default one
 		$pipeline //= '_default';
