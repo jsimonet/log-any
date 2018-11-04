@@ -143,7 +143,7 @@ A formatter can be more complex than the default one by extending the class _For
 use Log::Any::Formatter;
 
 class MyOwnFormatter is Log::Any::Formatter {
-	method format( :$dateTime!, :$msg!, :$category!, :$severity!, :%extra-fields ) {
+	method format( :$date-time!, :$msg!, :$category!, :$severity!, :%extra-fields ) {
 		# Returns an Str
 	}
 }
