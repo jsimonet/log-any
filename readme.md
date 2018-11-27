@@ -39,6 +39,10 @@ These attributes are used by the _Formatter_ to format the log and can also be u
 
 Like the Perl5 implementation (https://metacpan.org/pod/Log::Any), the idea is to split log generation and log management.
 
+## THIS FORK
+
+The only difference in this fork is that the log timestamp uses the local time zone, not the UTC.
+
 ## SEVERITY
 
 The severity is the level of urgence of a log.
@@ -145,9 +149,9 @@ A formatter can be more complex than the default one by extending the class _For
 use Log::Any::Formatter;
 
 class MyOwnFormatter is Log::Any::Formatter {
-	method format( :$date-time!, :$msg!, :$category!, :$severity!, :%extra-fields ) {
-		# Returns an Str
-	}
+  method format( :$date-time!, :$msg!, :$category!, :$severity!, :%extra-fields ) {
+    # Returns an Str
+  }
 }
 ```
 
@@ -220,10 +224,10 @@ If a more complex filtering is necessary, a class inheriting Log::Any::Filter ca
 ```perl6
 # Use home-made filters
 class MyOwnFilter is Log::Any::Filter {
-	method filter( :$msg, :$severity, :$category, :%extra-fields ) returns Bool {
-		# Write some complicated tests
-		return True;
-	}
+  method filter( :$msg, :$severity, :$category, :%extra-fields ) returns Bool {
+    # Write some complicated tests
+    return True;
+  }
 }
 
 Log::Any.add( Some::Adapter.new, :filter( MyOwnFilter.new ) );
@@ -294,7 +298,7 @@ Theses parameters are then used to check if the message could pass through the p
 
 ```perl6
 if Log::Any.will-log( :severity('debug') ) {
-	Log::Any.debug( serialize( $some-complex-object ) );
+  Log::Any.debug( serialize( $some-complex-object ) );
 }
 ```
 
