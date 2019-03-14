@@ -95,7 +95,7 @@ class Log::Any::Pipeline {
 				# Proxies
 
 				# Handling
-				%elem{'adapter'}.handle( $msgToHandle );
+				%elem{'adapter'}.handle( $msgToHandle, :$severity );
 			}
 			last unless %elem{'continue-on-match'};
 		}
